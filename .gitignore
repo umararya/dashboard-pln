@@ -1,0 +1,18 @@
+# Environment
+.env
+
+# Composer (kalau nanti kepake)
+vendor/
+
+# Cache & log
+cache/
+tmp/
+*.log
+
+# Editor
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
