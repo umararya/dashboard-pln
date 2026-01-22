@@ -1,6 +1,6 @@
 <?php
 /**
- * Login Page
+ * Login Page - Clean Version
  * Path: auth/login.php
  */
 
@@ -28,18 +28,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->execute([':username' => $username]);
         $user = $stmt->fetch();
 
-        if ($user && password_verify($password, $user['password'])) {
+        if ($user) {
             // Cek apakah user aktif
             if ($user['is_active'] == 0) {
                 $error = 'Akun Anda telah dinonaktifkan oleh Administrator. Silakan hubungi admin untuk mengaktifkan kembali.';
             } else {
-                // Login berhasil
-                $_SESSION['user_id'] = $user['id'];
-                $_SESSION['username'] = $user['username'];
-                $_SESSION['role'] = $user['role'];
-                
-                header('Location: ../index.php');
-                exit;
+                // Compare password PLAINTEXT
+                if ($password === $user['plain_password']) {
+                    // Login berhasil
+                    $_SESSION['user_id'] = $user['id'];
+                    $_SESSION['username'] = $user['username'];
+                    $_SESSION['role'] = $user['role'];
+                    $_SESSION['login_time'] = time(); // Simpan waktu login
+                    
+                    header('Location: ../index.php');
+                    exit;
+                } else {
+                    $error = 'Username atau password salah.';
+                }
             }
         } else {
             $error = 'Username atau password salah.';
@@ -186,53 +192,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             font-size: 18px;
         }
 
-        .info-box {
-            background: #eff6ff;
-            border: 2px solid #3b82f6;
-            border-radius: 12px;
-            padding: 18px;
-            margin-top: 28px;
-            font-size: 13px;
-            color: #1e40af;
-        }
-
-        .info-box strong {
-            display: block;
-            margin-bottom: 10px;
-            font-size: 14px;
-            color: #1e3a8a;
-        }
-
-        .info-box p {
-            margin: 6px 0;
-            padding-left: 8px;
-        }
-
-        .divider {
-            text-align: center;
-            margin: 25px 0;
-            position: relative;
-        }
-
-        .divider::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 50%;
-            width: 100%;
-            height: 1px;
-            background: #e2e8f0;
-        }
-
-        .divider span {
-            background: white;
-            padding: 0 15px;
-            position: relative;
-            color: #94a3b8;
-            font-size: 13px;
-            font-weight: 600;
-        }
-
         /* Responsive */
         @media (max-width: 480px) {
             .login-container {
@@ -280,16 +239,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <button type="submit" class="btn-login">Login</button>
         </form>
-
-        <div class="divider">
-            <span>Informasi Akses</span>
-        </div>
-
-        <div class="info-box">
-            <strong>🔑 Default Login untuk Testing:</strong>
-            <p><strong>Admin:</strong> admin / password</p>
-            <p><strong>User:</strong> user / password</p>
-        </div>
     </div>
 </body>
 </html>
