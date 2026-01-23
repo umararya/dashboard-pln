@@ -13,8 +13,10 @@ $active_menu = $active_menu ?? 'dashboard';
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="<?= base_url('assets/css/style.css') ?>">
     <title><?= h($page_title) ?> - PLN UID JATENG DIY</title>
     <style>
+        <?php include __DIR__ . '/admin-style.css'; ?>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         
         body {
@@ -299,7 +301,7 @@ $active_menu = $active_menu ?? 'dashboard';
         <div class="sidebar-header">
             <div class="sidebar-logo">
                 <img src="<?= asset('images/logo_pln.png') ?>" alt="PLN">
-                <h2>PLN UID</h2>
+                <h2>PLN UID JATENG DIY</h2>
             </div>
             <div class="user-info-sidebar">
                 <strong>👤 <?= h($user['username']) ?></strong>
@@ -385,10 +387,17 @@ $active_menu = $active_menu ?? 'dashboard';
         </div>
 
         <div class="content">
-            <?php // Content dari halaman akan diload di sini ?>
-            <?php if (isset($content_file) && file_exists($content_file)): ?>
-                <?php include $content_file; ?>
-            <?php endif; ?>
+        <?php
+if (isset($content_file) && file_exists($content_file)) {
+    $IS_CONTENT = true;
+    include $content_file;
+    unset($IS_CONTENT);
+} else {
+    echo '<div style="padding:20px;background:#fee2e2;border:1px solid #ef4444;border-radius:8px;color:#991b1b;">
+            CONTENT FILE NOT FOUND: ' . htmlspecialchars($content_file ?? '(not set)') . '
+          </div>';
+}
+?>
         </div>
     </div>
 

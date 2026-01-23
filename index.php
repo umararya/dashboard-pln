@@ -48,3 +48,4 @@ if (SESSION_TIMEOUT > 0 && isset($_SESSION['login_time'])) {
 // Jika sudah login dan session valid, tampilkan dashboard
 define('INCLUDED_FROM_INDEX', true);
 require __DIR__ . '/pages/dashboard.php';
+exit;
