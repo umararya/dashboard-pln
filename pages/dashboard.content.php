@@ -126,7 +126,7 @@
     </div>
 </div>
 
-translateX
+
 
 <!-- Data Table -->
 <div class="card">
