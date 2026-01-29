@@ -1,6 +1,6 @@
 <?php
 /**
- * Main Layout with Sidebar
+ * Main Layout with Sidebar (UPDATED - with Booking Zoom)
  * Path: includes/layout.php
  */
 
@@ -330,6 +330,9 @@ $active_menu = $active_menu ?? 'dashboard';
                 <div class="submenu" id="submenu-it-support">
                     <a href="<?= base_url('pages/data-jadwal.php') ?>" class="submenu-item <?= $active_menu === 'data-jadwal' ? 'active' : '' ?>">
                         📅 Data Jadwal
+                    </a>
+                    <a href="<?= base_url('pages/booking-zoom.php') ?>" class="submenu-item <?= in_array($active_menu, ['booking-zoom', 'data-zoom']) ? 'active' : '' ?>">
+                        🎥 Booking Jadwal Zoom
                     </a>
                     <a href="<?= base_url('pages/data-server.php') ?>" class="submenu-item <?= $active_menu === 'data-server' ? 'active' : '' ?>">
                         🖥️ Data Server
