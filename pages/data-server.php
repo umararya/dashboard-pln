@@ -1,6 +1,6 @@
 <?php
 /**
- * Data Server Page (Single File: controller + content)
+ * Data Server - List Page (Controller)
  * Path: pages/data-server.php
  */
 
@@ -13,34 +13,55 @@ require_once __DIR__ . '/../includes/functions.php';
 
 require_login();
 
-/**
- * Kalau file ini di-include oleh layout sebagai content,
- * layout akan set $IS_CONTENT = true.
- */
-if (!isset($IS_CONTENT)) {
-    // === CONTROLLER MODE ===
-    $page_title   = "Data Server";
-    $active_menu  = "data-server";
+$pdo = db();
+$success = '';
 
-    // Arahkan layout untuk include file ini lagi, tapi dalam mode content
-    $content_file = __FILE__;
-
-    require_once __DIR__ . '/../includes/layout.php';
-    exit;
+// Handle success messages
+if (isset($_GET['added'])) {
+    $success = 'Data server berhasil ditambahkan.';
+}
+if (isset($_GET['updated'])) {
+    $success = 'Data server berhasil diupdate.';
+}
+if (isset($_GET['deleted'])) {
+    $success = 'Data server berhasil dihapus.';
 }
 
-// === CONTENT MODE ===
-?>
+// Handle DELETE
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'delete_server') {
+    if (is_admin()) {
+        $id = (int)($_POST['server_id'] ?? 0);
+        
+        if ($id > 0) {
+            $stmt = $pdo->prepare("DELETE FROM data_servers WHERE id = :id");
+            $stmt->execute([':id' => $id]);
+            
+            header('Location: ' . base_url('pages/data-server.php?deleted=1'));
+            exit;
+        }
+    }
+}
 
-<div class="card">
-    <div class="card-header">
-        <h2>🖥️ Data Server</h2>
-        <p>Halaman ini masih dalam pengembangan</p>
-    </div>
+// Pagination
+$page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
+$per_page = 10;
+$offset = ($page - 1) * $per_page;
 
-    <div style="padding: 60px 25px; text-align: center; color: #94a3b8;">
-        <div style="font-size: 64px; margin-bottom: 20px;">🚧</div>
-        <h3 style="color: #475569; margin-bottom: 10px;">Halaman Dalam Pengembangan</h3>
-        <p>Fitur Data Server akan segera hadir.</p>
-    </div>
-</div>
+// Get total count
+$total_count = $pdo->query("SELECT COUNT(*) FROM data_servers")->fetchColumn();
+$total_pages = ceil($total_count / $per_page);
+
+// Load data_servers
+$stmt = $pdo->prepare("SELECT * FROM data_servers ORDER BY created_at DESC LIMIT :limit OFFSET :offset");
+$stmt->bindValue(':limit', $per_page, PDO::PARAM_INT);
+$stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+$stmt->execute();
+$servers = $stmt->fetchAll();
+
+// Variables for layout
+$page_title = "Data Server";
+$active_menu = "data-server";
+$content_file = __DIR__ . "/data-server.content.php";
+
+require_once __DIR__ . '/../includes/layout.php';
+exit;
