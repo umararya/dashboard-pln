@@ -151,7 +151,7 @@
         <ul style="margin: 0; padding-left: 20px;">
             <li style="margin-bottom: 8px;">Pastikan tanggal dan jam booking tidak bentrok dengan booking lain</li>
             <li style="margin-bottom: 8px;">Status "Kondisi" akan otomatis diset ke <strong>DIPAKAI</strong> setelah booking</li>
-            <li style="margin-bottom: 8px;">Admin dapat mengubah kondisi menjadi <strong>KOSONG</strong> setelah selesai digunakan</li>
+            <li style="margin-bottom: 8px;">Jangan lupa mengubah kondisi menjadi <strong>KOSONG</strong> setelah selesai digunakan</li>
             
         </ul>
     </div>

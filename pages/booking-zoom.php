@@ -13,18 +13,17 @@ require_login();
 
 $pdo = db();
 
-// Zoom options (temporary - will be updated with real zoom links later)
+// Zoom options (Real PLN UID JATENG DIY Zoom Accounts)
 $ZOOM_OPTIONS = [
-    'Zoom 1',
-    'Zoom 2',
-    'Zoom 3',
-    'Zoom 4',
-    'Zoom 5',
-    'Zoom 6',
-    'Zoom 7',
-    'Zoom 8',
-    'Zoom 9',
-    'Zoom 10',
+    'zoomplnuidjty001@gmail.com',
+    'zoomplnuidjty002@gmail.com',
+    'zoomplnuidjty003@gmail.com',
+    'zoomplnuidjty004@gmail.com',
+    'zoomplnuidjty005@gmail.com',
+    'zoomplnuidjty0066@gmail.com',
+    'zoomplnuidjty007@gmail.com',
+    'zoomplnuidjty008@gmail.com',
+    'zoomplnuidjty009@gmail.com',
 ];
 
 $KONDISI_OPTIONS = ['KOSONG', 'DIPAKAI'];
