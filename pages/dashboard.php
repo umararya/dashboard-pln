@@ -15,6 +15,13 @@ require_login();
 
 $pdo = db();
 
+$error_message = '';
+if (isset($_GET['error'])) {
+    if ($_GET['error'] === 'no_access') {
+        $error_message = '🔒 Anda tidak memiliki akses ke halaman tersebut.';
+    }
+}
+
 // Load data dari database (DYNAMIC)
 $PIC_IT_OPTIONS = $pdo->query("SELECT name FROM pic_it_support WHERE is_active = 1 ORDER BY sort_order ASC, id ASC")
     ->fetchAll(PDO::FETCH_COLUMN);

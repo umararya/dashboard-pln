@@ -10,8 +10,10 @@ if (session_status() === PHP_SESSION_NONE) {
 
 require_once __DIR__ . '/../config/db.php';
 require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . '/../includes/functions-permissions.php';
 
 require_login();
+require_permission('data-server');
 
 $pdo = db();
 $errors = [];

@@ -5,6 +5,11 @@
  */
 
 $user = current_user();
+$user_permissions = [];
+if (!is_admin()) {
+    require_once __DIR__ . '/functions-permissions.php';
+    $user_permissions = get_user_permissions();
+}
 $page_title = $page_title ?? 'Dashboard';
 $active_menu = $active_menu ?? 'dashboard';
 ?>
@@ -320,25 +325,60 @@ $active_menu = $active_menu ?? 'dashboard';
 
             <!-- IT SUPPORT Section -->
             <div class="menu-section">
-                <div class="menu-section-title">IT Support</div>
-                
-                <div class="menu-item" onclick="toggleSubmenu('it-support')">
-                    <span class="icon">💻</span>
-                    <span class="text">IT Support</span>
-                    <span class="arrow">▸</span>
-                </div>
-                <div class="submenu" id="submenu-it-support">
-                    <a href="<?= base_url('pages/data-jadwal.php') ?>" class="submenu-item <?= $active_menu === 'data-jadwal' ? 'active' : '' ?>">
-                        📅 Data Jadwal
-                    </a>
-                    <a href="<?= base_url('pages/booking-zoom.php') ?>" class="submenu-item <?= in_array($active_menu, ['booking-zoom', 'data-zoom']) ? 'active' : '' ?>">
-                        🎥 Booking Jadwal Zoom
-                    </a>
-                    <a href="<?= base_url('pages/data-server.php') ?>" class="submenu-item <?= $active_menu === 'data-server' ? 'active' : '' ?>">
-                        🖥️ Data Server
-                    </a>
-                </div>
-            </div>
+    <div class="menu-section-title">IT Support</div>
+    
+    <?php
+    // Hitung berapa menu yang visible untuk user ini
+    $visible_menus = 0;
+    $menus = [
+        'data-jadwal' => ['url' => 'pages/data-jadwal.php', 'icon' => '📅', 'text' => 'Data Jadwal'],
+        'booking-zoom' => ['url' => 'pages/booking-zoom.php', 'icon' => '🎥', 'text' => 'Booking Jadwal Zoom'],
+        'data-server' => ['url' => 'pages/data-server.php', 'icon' => '🖥️', 'text' => 'Data Server'],
+    ];
+    
+    foreach ($menus as $slug => $menu) {
+        if (is_admin() || has_permission($slug)) {
+            $visible_menus++;
+        }
+    }
+    ?>
+    
+    <?php if ($visible_menus > 0): ?>
+        <div class="menu-item" onclick="toggleSubmenu('it-support')">
+            <span class="icon">💻</span>
+            <span class="text">IT Support</span>
+            <span class="arrow">▸</span>
+        </div>
+        <div class="submenu" id="submenu-it-support">
+            <?php
+            // Data Jadwal
+            if (is_admin() || has_permission('data-jadwal')):
+            ?>
+                <a href="<?= base_url('pages/data-jadwal.php') ?>" class="submenu-item <?= $active_menu === 'data-jadwal' ? 'active' : '' ?>">
+                    📅 Data Jadwal
+                </a>
+            <?php endif; ?>
+            
+            <?php
+            // Booking Zoom
+            if (is_admin() || has_permission('booking-zoom')):
+            ?>
+                <a href="<?= base_url('pages/booking-zoom.php') ?>" class="submenu-item <?= in_array($active_menu, ['booking-zoom', 'data-zoom']) ? 'active' : '' ?>">
+                    🎥 Booking Jadwal Zoom
+                </a>
+            <?php endif; ?>
+            
+            <?php
+            // Data Server
+            if (is_admin() || has_permission('data-server')):
+            ?>
+                <a href="<?= base_url('pages/data-server.php') ?>" class="submenu-item <?= $active_menu === 'data-server' ? 'active' : '' ?>">
+                    🖥️ Data Server
+                </a>
+            <?php endif; ?>
+        </div>
+    <?php endif; ?>
+</div>
 
             <?php if ($user['role'] === 'admin'): ?>
             <!-- ADMINISTRATOR Section (Admin Only) -->

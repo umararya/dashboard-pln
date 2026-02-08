@@ -111,3 +111,4 @@ function clean_input($data) {
     $data = htmlspecialchars($data);
     return $data;
 }
+require_once __DIR__ . '/functions-permissions.php';

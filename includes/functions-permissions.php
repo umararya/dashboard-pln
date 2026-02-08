@@ -50,7 +50,9 @@ function has_permission($page_slug, $user_id = null) {
 function require_permission($page_slug, $redirect_url = null) {
     if (!has_permission($page_slug)) {
         if ($redirect_url === null) {
-            $redirect_url = base_url('index.php?error=no_permission');
+            // Redirect ke dashboard dengan pesan error
+            header('Location: ' . base_url('index.php?error=no_access'));
+            exit;
         }
         header('Location: ' . $redirect_url);
         exit;

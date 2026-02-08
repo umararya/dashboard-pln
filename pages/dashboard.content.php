@@ -126,7 +126,11 @@
     </div>
 </div>
 
-
+<?php if (!empty($error_message)): ?>
+    <div class="alert alert-error" style="margin-bottom: 20px;">
+        <?= h($error_message) ?>
+    </div>
+<?php endif; ?>
 
 <!-- Data Table -->
 <div class="card">
