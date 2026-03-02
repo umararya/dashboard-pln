@@ -54,6 +54,62 @@
 .pagination a, .pagination span { padding: 8px 14px; border: 1px solid #d1d5db; border-radius: 6px; text-decoration: none; color: #374151; font-size: 13px; font-weight: 600; }
 .pagination a:hover { background: #f3f4f6; border-color: #9ca3af; }
 .pagination .active { background: #3b82f6; color: white; border-color: #3b82f6; }
+
+/* ===================== SEARCH BOX ===================== */
+.search-wrapper {
+    position: relative;
+    margin-bottom: 15px;
+}
+.search-wrapper .search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 15px;
+    color: #94a3b8;
+    pointer-events: none;
+}
+#serverSearch {
+    width: 100%;
+    padding: 10px 40px 10px 38px;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 13px;
+    color: #334155;
+    background: #f8fafc;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    box-sizing: border-box;
+}
+#serverSearch:focus {
+    border-color: #3b82f6;
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
+}
+#serverSearch::placeholder { color: #94a3b8; }
+.search-clear-btn {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    color: #94a3b8;
+    display: none;
+    padding: 0 4px;
+    line-height: 1;
+}
+.search-clear-btn:hover { color: #475569; }
+.search-no-result {
+    display: none;
+    text-align: center;
+    padding: 40px 20px;
+    color: #94a3b8;
+    font-size: 14px;
+}
+/* ====================================================== */
 </style>
 
 <!-- Modal Preview Gambar -->
@@ -91,6 +147,23 @@
                 <span style="font-size: 13px;">Klik tombol <strong>"Input Data"</strong> untuk menambahkan server baru.</span>
             </p>
         <?php else: ?>
+
+            <!-- ===================== SEARCH INPUT ===================== -->
+            <div class="search-wrapper">
+                <span class="search-icon">🔍</span>
+                <input
+                    type="text"
+                    id="serverSearch"
+                    placeholder="Cari server... (IND, Fungsi, IP, Merk, Type, OS, Processor, Status)"
+                    autocomplete="off"
+                >
+                <button class="search-clear-btn" id="searchClearBtn" title="Hapus pencarian">✕</button>
+            </div>
+            <div class="search-no-result" id="searchNoResult">
+                🔎 Tidak ada data yang cocok dengan kata kunci "<span id="searchKeywordDisplay"></span>"
+            </div>
+            <!-- ======================================================= -->
+
             <div class="table-wrapper">
                 <table class="data-table compact" id="serverTable">
                     <thead>
@@ -256,4 +329,84 @@ function closeImgModal(e) {
     }
 }
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeImgModal(); });
+
+/* ===================== REAL-TIME SEARCH =====================
+ * Kolom yang di-search (index td dalam <tr>):
+ *   1  → IND
+ *   2  → Fungsi Server
+ *   3  → IP Address
+ *   5  → Merk         (extended-col)
+ *   6  → Type         (extended-col)
+ *   7  → OS           (extended-col)
+ *   8  → Processor    (extended-col)
+ *   12 → Status Server
+ * ============================================================ */
+(function () {
+    const searchInput    = document.getElementById('serverSearch');
+    const clearBtn       = document.getElementById('searchClearBtn');
+    const noResultEl     = document.getElementById('searchNoResult');
+    const keywordDisplay = document.getElementById('searchKeywordDisplay');
+
+    // Kolom index yang akan di-search
+    const SEARCH_COLS = [1, 2, 3, 5, 6, 7, 8, 12];
+
+    if (!searchInput) return; // guard: kalau tabel kosong / elemen tidak ada
+
+    function doSearch() {
+        const keyword = searchInput.value.trim().toLowerCase();
+        const tbody   = document.querySelector('#serverTable tbody');
+
+        if (!tbody) return;
+
+        const rows       = tbody.querySelectorAll('tr');
+        let visibleCount = 0;
+
+        rows.forEach(function (row) {
+            if (!keyword) {
+                // Keyword kosong → tampilkan semua
+                row.style.display = '';
+                visibleCount++;
+                return;
+            }
+
+            const cells  = row.querySelectorAll('td');
+            let   match  = false;
+
+            SEARCH_COLS.forEach(function (colIdx) {
+                if (cells[colIdx]) {
+                    const cellText = cells[colIdx].innerText || cells[colIdx].textContent || '';
+                    if (cellText.toLowerCase().indexOf(keyword) !== -1) {
+                        match = true;
+                    }
+                }
+            });
+
+            row.style.display = match ? '' : 'none';
+            if (match) visibleCount++;
+        });
+
+        // Tampilkan / sembunyikan tombol clear
+        clearBtn.style.display = keyword ? 'block' : 'none';
+
+        // Tampilkan pesan "tidak ada hasil"
+        if (keyword && visibleCount === 0) {
+            noResultEl.style.display  = 'block';
+            keywordDisplay.textContent = keyword;
+        } else {
+            noResultEl.style.display  = 'none';
+            keywordDisplay.textContent = '';
+        }
+    }
+
+    // Event: ketik real-time
+    searchInput.addEventListener('input', doSearch);
+
+    // Event: tombol clear (✕)
+    clearBtn.addEventListener('click', function () {
+        searchInput.value = '';
+        doSearch();
+        searchInput.focus();
+    });
+})();
+/* =========================================================== */
 </script>
