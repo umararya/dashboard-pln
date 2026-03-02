@@ -2,7 +2,7 @@
 <style>
 .detail-grid { display: grid; grid-template-columns: 200px 1fr; gap: 14px; margin-bottom: 14px; }
 .detail-label { font-weight: 700; color: #475569; }
-.detail-value { color: #1e293b; }
+.detail-value { color: #1e293b; display: flex; align-items: center; }
 .detail-separator { border-bottom: 1px solid #e5e7eb; margin: 20px 0; }
 .history-card { background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 10px; padding: 16px; margin-bottom: 12px; }
 .status-badge { display: inline-block; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 700; }
@@ -10,6 +10,51 @@
 .status-problem { background: #fee2e2; color: #991b1b; }
 .kondisi-hidup { background: #d1fae5; color: #065f46; }
 .kondisi-mati { background: #fee2e2; color: #991b1b; }
+
+/* Toggle Switch */
+.toggle-wrapper { display: flex; align-items: center; gap: 10px; }
+.toggle-switch {
+    position: relative;
+    width: 52px;
+    height: 28px;
+    cursor: pointer;
+}
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+.toggle-slider {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    border-radius: 28px;
+    transition: 0.3s;
+    background: #ef4444;
+}
+.toggle-slider:before {
+    content: '';
+    position: absolute;
+    width: 22px; height: 22px;
+    left: 3px; bottom: 3px;
+    background: white;
+    border-radius: 50%;
+    transition: 0.3s;
+}
+input:checked + .toggle-slider { background: #22c55e; }
+input:checked + .toggle-slider:before { transform: translateX(24px); }
+.toggle-label-hidup { color: #15803d; font-weight: 700; font-size: 14px; }
+.toggle-label-mati { color: #dc2626; font-weight: 700; font-size: 14px; }
+
+/* Server status banner */
+.server-mati-banner {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+    padding: 12px 16px;
+    color: #991b1b;
+    font-weight: 600;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+}
 </style>
 
 <div class="card">
@@ -45,6 +90,31 @@
             
             <div class="detail-label">Detail:</div>
             <div class="detail-value"><?= h($server['detail'] ?: '-') ?></div>
+
+            <div class="detail-label">Status Server:</div>
+            <div class="detail-value">
+                <?php $isHidup = ($server['status_server'] ?? 'HIDUP') === 'HIDUP'; ?>
+                <?php if (is_admin()): ?>
+                    <!-- Toggle switch untuk admin -->
+                    <form method="post" style="margin: 0;" id="toggleStatusForm">
+                        <input type="hidden" name="action" value="toggle_status_server">
+                        <div class="toggle-wrapper">
+                            <label class="toggle-switch" title="Klik untuk mengubah status server">
+                                <input type="checkbox" <?= $isHidup ? 'checked' : '' ?> onchange="document.getElementById('toggleStatusForm').submit()">
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <span class="<?= $isHidup ? 'toggle-label-hidup' : 'toggle-label-mati' ?>">
+                                <?= $isHidup ? '🟢 HIDUP' : '🔴 MATI' ?>
+                            </span>
+                        </div>
+                    </form>
+                <?php else: ?>
+                    <!-- Non-admin: tampilkan badge saja -->
+                    <span class="status-badge <?= $isHidup ? 'kondisi-hidup' : 'kondisi-mati' ?>">
+                        <?= $isHidup ? '🟢 HIDUP' : '🔴 MATI' ?>
+                    </span>
+                <?php endif; ?>
+            </div>
         </div>
 
         <div class="detail-separator"></div>
@@ -112,22 +182,37 @@
 </div>
 
 <!-- Maintenance History -->
+<?php $serverHidup = ($server['status_server'] ?? 'HIDUP') === 'HIDUP'; ?>
 <div class="card">
     <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
         <div>
             <h2>🔧 History Pemeliharaan</h2>
             <p>Riwayat pemeliharaan server</p>
         </div>
-        <a href="<?= base_url('pages/maintenance-input.php?server_id=' . $server_id) ?>" class="btn btn-primary">
-            ➕ Input History Pemeliharaan
-        </a>
+        <?php if ($serverHidup): ?>
+            <a href="<?= base_url('pages/maintenance-input.php?server_id=' . $server_id) ?>" class="btn btn-primary">
+                ➕ Input History Pemeliharaan
+            </a>
+        <?php else: ?>
+            <span style="background: #fee2e2; color: #991b1b; padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; border: 1px solid #fecaca;">
+                🔴 Server Mati — Input Dinonaktifkan
+            </span>
+        <?php endif; ?>
     </div>
 
     <div style="padding: 25px;">
+        <?php if (!$serverHidup): ?>
+            <div class="server-mati-banner">
+                🚫 Server dalam keadaan <strong>MATI</strong>. Input dan edit history pemeliharaan tidak dapat dilakukan.
+            </div>
+        <?php endif; ?>
+
         <?php if (empty($maintenance_history)): ?>
             <p style="text-align: center; padding: 40px 20px; color: #94a3b8; font-size: 14px;">
                 📋 Belum menginputkan data history pemeliharaan.<br>
-                <span style="font-size: 13px;">Klik tombol <strong>"Input History Pemeliharaan"</strong> untuk menambahkan data baru.</span>
+                <?php if ($serverHidup): ?>
+                    <span style="font-size: 13px;">Klik tombol <strong>"Input History Pemeliharaan"</strong> untuk menambahkan data baru.</span>
+                <?php endif; ?>
             </p>
         <?php else: ?>
             <?php foreach ($maintenance_history as $m): ?>
@@ -159,7 +244,11 @@
 
                     <?php if (is_admin()): ?>
                         <div style="display: flex; gap: 8px; justify-content: flex-end;">
-                            <a href="<?= base_url('pages/maintenance-edit.php?id=' . $m['id']) ?>" class="btn btn-sm btn-edit">✏️ Edit</a>
+                            <?php if ($serverHidup): ?>
+                                <a href="<?= base_url('pages/maintenance-edit.php?id=' . $m['id']) ?>" class="btn btn-sm btn-edit">✏️ Edit</a>
+                            <?php else: ?>
+                                <span style="color: #94a3b8; font-size: 12px; font-style: italic; padding: 4px 8px;">✏️ Edit dinonaktifkan</span>
+                            <?php endif; ?>
                             <form method="post" style="display: inline; margin: 0;" onsubmit="return confirm('Yakin hapus history ini?')">
                                 <input type="hidden" name="action" value="delete_maintenance">
                                 <input type="hidden" name="maintenance_id" value="<?= $m['id'] ?>">

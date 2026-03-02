@@ -17,7 +17,7 @@ if ($maintenance_id <= 0) {
     exit;
 }
 
-$stmt = $pdo->prepare("SELECT sm.*, s.ind, s.fungsi_server FROM server_maintenance sm JOIN data_servers s ON sm.server_id = s.id WHERE sm.id = :id");
+$stmt = $pdo->prepare("SELECT sm.*, s.ind, s.fungsi_server, s.status_server FROM server_maintenance sm JOIN data_servers s ON sm.server_id = s.id WHERE sm.id = :id");
 $stmt->execute([':id' => $maintenance_id]);
 $maintenance = $stmt->fetch();
 
@@ -27,6 +27,13 @@ if (!$maintenance) {
 }
 
 $server_id = $maintenance['server_id'];
+
+// Block jika status server MATI
+if (($maintenance['status_server'] ?? 'HIDUP') === 'MATI') {
+    header('Location: ' . base_url('pages/data-server-detail.php?id=' . $server_id . '&server_mati=1'));
+    exit;
+}
+
 $waktu_pemeliharaan = $_POST['waktu_pemeliharaan'] ?? $maintenance['waktu_pemeliharaan'];
 $temuan = $_POST['temuan'] ?? $maintenance['temuan'];
 $dicek_oleh = $_POST['dicek_oleh'] ?? $maintenance['dicek_oleh'];

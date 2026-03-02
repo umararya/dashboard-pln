@@ -35,6 +35,12 @@ if (isset($_GET['maintenance_updated'])) {
 if (isset($_GET['maintenance_deleted'])) {
     $success = 'History pemeliharaan berhasil dihapus.';
 }
+if (isset($_GET['status_updated'])) {
+    $success = 'Status server berhasil diupdate.';
+}
+if (isset($_GET['server_mati'])) {
+    $success = '⚠️ Aksi tidak diizinkan. Status server sedang MATI.';
+}
 
 // Load server data
 $stmt = $pdo->prepare("SELECT * FROM data_servers WHERE id = :id");
@@ -44,6 +50,18 @@ $server = $stmt->fetch();
 if (!$server) {
     header('Location: ' . base_url('pages/data-server.php'));
     exit;
+}
+
+// Handle TOGGLE status_server (admin only)
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'toggle_status_server') {
+    if (is_admin()) {
+        $new_status = ($server['status_server'] === 'HIDUP') ? 'MATI' : 'HIDUP';
+        $stmt = $pdo->prepare("UPDATE data_servers SET status_server = :status WHERE id = :id");
+        $stmt->execute([':status' => $new_status, ':id' => $server_id]);
+
+        header('Location: ' . base_url('pages/data-server-detail.php?id=' . $server_id . '&status_updated=1'));
+        exit;
+    }
 }
 
 // Handle DELETE maintenance

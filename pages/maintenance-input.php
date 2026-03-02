@@ -26,6 +26,12 @@ if (!$server) {
     exit;
 }
 
+// Block jika status server MATI
+if (($server['status_server'] ?? 'HIDUP') === 'MATI') {
+    header('Location: ' . base_url('pages/data-server-detail.php?id=' . $server_id . '&server_mati=1'));
+    exit;
+}
+
 $waktu_pemeliharaan = $_POST['waktu_pemeliharaan'] ?? '';
 $temuan = $_POST['temuan'] ?? '';
 $dicek_oleh = $_POST['dicek_oleh'] ?? '';
