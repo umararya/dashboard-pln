@@ -91,6 +91,21 @@ input:checked + .toggle-slider:before { transform: translateX(24px); }
             <div class="detail-label">Detail:</div>
             <div class="detail-value"><?= h($server['detail'] ?: '-') ?></div>
 
+            <div class="detail-label">Gambar:</div>
+            <div class="detail-value">
+                <?php if (!empty($server['gambar'])): ?>
+                    <a href="<?= base_url('uploads/server_images/' . h($server['gambar'])) ?>" target="_blank" title="Lihat gambar penuh">
+                        <img 
+                            src="<?= base_url('uploads/server_images/' . h($server['gambar'])) ?>" 
+                            alt="Gambar <?= h($server['ind']) ?>"
+                            style="max-width: 260px; max-height: 180px; border-radius: 8px; border: 1px solid #e5e7eb; object-fit: contain; cursor: zoom-in;"
+                        >
+                    </a>
+                <?php else: ?>
+                    <span style="color: #94a3b8; font-style: italic;">Belum ada gambar</span>
+                <?php endif; ?>
+            </div>
+
             <div class="detail-label">Status Server:</div>
             <div class="detail-value">
                 <?php $isHidup = ($server['status_server'] ?? 'HIDUP') === 'HIDUP'; ?>
@@ -241,6 +256,19 @@ input:checked + .toggle-slider:before { transform: translateX(24px); }
                         <div style="font-size: 13px; color: #475569; font-weight: 600; margin-bottom: 4px;">Temuan:</div>
                         <div style="color: #1e293b; font-size: 14px;"><?= nl2br(h($m['temuan'])) ?></div>
                     </div>
+
+                    <?php if (!empty($m['gambar'])): ?>
+                        <div style="background: white; padding: 12px; border-radius: 6px; margin-bottom: 10px;">
+                            <div style="font-size: 13px; color: #475569; font-weight: 600; margin-bottom: 8px;">📷 Gambar Pemeliharaan:</div>
+                            <a href="<?= base_url('uploads/maintenance_images/' . h($m['gambar'])) ?>" target="_blank" title="Lihat gambar penuh">
+                                <img 
+                                    src="<?= base_url('uploads/maintenance_images/' . h($m['gambar'])) ?>"
+                                    alt="Gambar pemeliharaan"
+                                    style="max-width: 100%; max-height: 220px; border-radius: 8px; border: 1px solid #e5e7eb; object-fit: contain; cursor: zoom-in; display: block;"
+                                >
+                            </a>
+                        </div>
+                    <?php endif; ?>
 
                     <?php if (is_admin()): ?>
                         <div style="display: flex; gap: 8px; justify-content: flex-end;">

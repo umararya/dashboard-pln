@@ -57,6 +57,44 @@
     padding-bottom: 8px;
     border-bottom: 2px solid #e5e7eb;
 }
+
+/* Image Upload */
+.image-upload-area {
+    border: 2px dashed #d1d5db;
+    border-radius: 10px;
+    padding: 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: #f9fafb;
+    position: relative;
+}
+.image-upload-area:hover {
+    border-color: #3b82f6;
+    background: #eff6ff;
+}
+.image-upload-area input[type="file"] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    border: none;
+}
+.image-preview {
+    display: none;
+    margin-top: 12px;
+    text-align: center;
+}
+.image-preview img {
+    max-width: 100%;
+    max-height: 200px;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    object-fit: contain;
+}
 </style>
 
 <div class="card">
@@ -82,7 +120,7 @@
     <?php endif; ?>
 
     <div style="padding: 25px;">
-        <form method="post" id="serverForm">
+        <form method="post" id="serverForm" enctype="multipart/form-data">
             <input type="hidden" name="action" value="add_server">
             
             <!-- Basic Info -->
@@ -206,11 +244,75 @@
                 <textarea name="keterangan_tambahan" rows="3" placeholder="Catatan atau informasi tambahan lainnya"><?= h($keterangan_tambahan) ?></textarea>
             </div>
 
+            <div class="form-group">
+                <label>Status Server <span class="required">*</span></label>
+                <div style="display: flex; gap: 16px; margin-top: 4px;">
+                    <label style="display: flex; align-items: center; gap: 8px; font-weight: 500; cursor: pointer; color: #15803d;">
+                        <input type="radio" name="status_server" value="HIDUP"
+                               <?= ($status_server ?? 'HIDUP') === 'HIDUP' ? 'checked' : '' ?>
+                               style="width: auto; padding: 0; margin: 0; accent-color: #22c55e;">
+                        🟢 HIDUP
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 8px; font-weight: 500; cursor: pointer; color: #dc2626;">
+                        <input type="radio" name="status_server" value="MATI"
+                               <?= ($status_server ?? 'HIDUP') === 'MATI' ? 'checked' : '' ?>
+                               style="width: auto; padding: 0; margin: 0; accent-color: #ef4444;">
+                        🔴 MATI
+                    </label>
+                </div>
+            </div>
+
+            <!-- Gambar -->
+            <div class="form-section-title">🖼️ Gambar Server</div>
+            <div class="form-group">
+                <label>Upload Gambar <small style="font-weight: 400; color: #64748b;">(Opsional — format JPEG/JPG, maks. 2MB)</small></label>
+                <div class="image-upload-area" id="uploadArea">
+                    <input type="file" name="gambar" id="gambarInput" accept=".jpg,.jpeg,image/jpeg">
+                    <div id="uploadPlaceholder">
+                        <div style="font-size: 32px; margin-bottom: 8px;">📷</div>
+                        <div style="font-weight: 600; color: #374151; margin-bottom: 4px;">Klik atau drag gambar ke sini</div>
+                        <div style="font-size: 13px; color: #94a3b8;">Format: JPEG/JPG &bull; Maks. 2MB</div>
+                    </div>
+                </div>
+                <div class="image-preview" id="imagePreview">
+                    <img id="previewImg" src="" alt="Preview Gambar">
+                    <div style="margin-top: 8px; font-size: 13px; color: #64748b;" id="previewFilename"></div>
+                </div>
+            </div>
+
             <div style="display: flex; gap: 12px; margin-top: 25px; padding-top: 20px; border-top: 2px solid #e5e7eb;">
                 <button type="submit" class="btn btn-primary">💾 Simpan Data Server</button>
-                <button type="reset" class="btn btn-secondary">🔄 Reset Form</button>
+                <button type="reset" class="btn btn-secondary" onclick="resetPreview()">🔄 Reset Form</button>
                 <a href="<?= base_url('pages/data-server.php') ?>" class="btn btn-secondary">❌ Batal</a>
             </div>
         </form>
     </div>
 </div>
+
+<script>
+const gambarInput = document.getElementById('gambarInput');
+const imagePreview = document.getElementById('imagePreview');
+const previewImg = document.getElementById('previewImg');
+const previewFilename = document.getElementById('previewFilename');
+const uploadPlaceholder = document.getElementById('uploadPlaceholder');
+
+gambarInput.addEventListener('change', function() {
+    const file = this.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            previewImg.src = e.target.result;
+            previewFilename.textContent = file.name + ' (' + (file.size / 1024).toFixed(1) + ' KB)';
+            imagePreview.style.display = 'block';
+            uploadPlaceholder.style.display = 'none';
+        };
+        reader.readAsDataURL(file);
+    }
+});
+
+function resetPreview() {
+    imagePreview.style.display = 'none';
+    uploadPlaceholder.style.display = 'block';
+    previewImg.src = '';
+}
+</script>
