@@ -1,6 +1,6 @@
 <?php
 /**
- * Main Layout with Sidebar (UPDATED - with Booking Zoom)
+ * Main Layout with Sidebar (UPDATED - with IT Support Jateng)
  * Path: includes/layout.php
  */
 
@@ -10,7 +10,7 @@ if (!is_admin()) {
     require_once __DIR__ . '/functions-permissions.php';
     $user_permissions = get_user_permissions();
 }
-$page_title = $page_title ?? 'Dashboard';
+$page_title  = $page_title  ?? 'Dashboard';
 $active_menu = $active_menu ?? 'dashboard';
 ?>
 <!doctype html>
@@ -23,7 +23,7 @@ $active_menu = $active_menu ?? 'dashboard';
     <style>
         <?php include __DIR__ . '/admin-style.css'; ?>
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        
+
         body {
             font-family: 'Segoe UI', Arial, sans-serif;
             background: #f5f7fa;
@@ -33,10 +33,8 @@ $active_menu = $active_menu ?? 'dashboard';
         /* SIDEBAR */
         .sidebar {
             position: fixed;
-            left: 0;
-            top: 0;
-            width: 260px;
-            height: 100vh;
+            left: 0; top: 0;
+            width: 260px; height: 100vh;
             background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
             color: #fff;
             transition: transform 0.3s ease;
@@ -44,148 +42,64 @@ $active_menu = $active_menu ?? 'dashboard';
             overflow-y: auto;
             box-shadow: 2px 0 10px rgba(0,0,0,0.1);
         }
-
-        .sidebar.collapsed {
-            transform: translateX(-260px);
-        }
+        .sidebar.collapsed { transform: translateX(-260px); }
 
         .sidebar-header {
             padding: 20px;
             background: rgba(0,0,0,0.2);
             border-bottom: 1px solid rgba(255,255,255,0.1);
         }
-
-        .sidebar-logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 15px;
-        }
-
-        .sidebar-logo img {
-            width: 40px;
-            height: 40px;
-            border-radius: 8px;
-            background: white;
-            padding: 4px;
-        }
-
-        .sidebar-logo h2 {
-            font-size: 18px;
-            font-weight: 700;
-        }
+        .sidebar-logo { display: flex; align-items: center; gap: 12px; margin-bottom: 15px; }
+        .sidebar-logo img { width: 40px; height: 40px; border-radius: 8px; background: white; padding: 4px; }
+        .sidebar-logo h2 { font-size: 18px; font-weight: 700; }
 
         .user-info-sidebar {
             background: rgba(255,255,255,0.1);
-            padding: 10px;
-            border-radius: 8px;
-            font-size: 13px;
+            padding: 10px; border-radius: 8px; font-size: 13px;
         }
-
-        .user-info-sidebar strong {
-            display: block;
-            margin-bottom: 3px;
-        }
-
+        .user-info-sidebar strong { display: block; margin-bottom: 3px; }
         .user-role-badge {
-            display: inline-block;
-            padding: 2px 8px;
-            background: #10b981;
-            border-radius: 4px;
-            font-size: 11px;
-            font-weight: 600;
-            text-transform: uppercase;
+            display: inline-block; padding: 2px 8px;
+            background: #10b981; border-radius: 4px;
+            font-size: 11px; font-weight: 600; text-transform: uppercase;
         }
 
-        .sidebar-menu {
-            padding: 10px 0;
-        }
-
-        .menu-section {
-            margin-bottom: 5px;
-        }
-
+        .sidebar-menu { padding: 10px 0; }
+        .menu-section { margin-bottom: 5px; }
         .menu-section-title {
             padding: 15px 20px 8px;
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-            color: #94a3b8;
-            letter-spacing: 0.5px;
+            font-size: 11px; font-weight: 700;
+            text-transform: uppercase; color: #94a3b8; letter-spacing: 0.5px;
         }
 
         .menu-item {
             padding: 12px 20px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            color: #cbd5e1;
-            text-decoration: none;
-            transition: all 0.2s;
-            cursor: pointer;
+            display: flex; align-items: center; gap: 12px;
+            color: #cbd5e1; text-decoration: none;
+            transition: all 0.2s; cursor: pointer;
             border-left: 3px solid transparent;
         }
-
-        .menu-item:hover {
-            background: rgba(255,255,255,0.1);
-            color: #fff;
-        }
-
-        .menu-item.active {
-            background: rgba(59, 130, 246, 0.2);
-            color: #fff;
-            border-left-color: #3b82f6;
-        }
-
-        .menu-item .icon {
-            font-size: 18px;
-            width: 20px;
-            text-align: center;
-        }
-
-        .menu-item .text {
-            flex: 1;
-            font-size: 14px;
-        }
-
-        .menu-item .arrow {
-            font-size: 12px;
-            transition: transform 0.3s;
-        }
-
-        .menu-item.expanded .arrow {
-            transform: rotate(90deg);
-        }
+        .menu-item:hover { background: rgba(255,255,255,0.1); color: #fff; }
+        .menu-item.active { background: rgba(59,130,246,0.2); color: #fff; border-left-color: #3b82f6; }
+        .menu-item .icon { font-size: 18px; width: 20px; text-align: center; }
+        .menu-item .text { flex: 1; font-size: 14px; }
+        .menu-item .arrow { font-size: 12px; transition: transform 0.3s; }
+        .menu-item.expanded .arrow { transform: rotate(90deg); }
 
         .submenu {
-            max-height: 0;
-            overflow: hidden;
+            max-height: 0; overflow: hidden;
             transition: max-height 0.3s ease;
             background: rgba(0,0,0,0.2);
         }
-
-        .submenu.show {
-            max-height: 500px;
-        }
+        .submenu.show { max-height: 600px; }
 
         .submenu-item {
             padding: 10px 20px 10px 52px;
-            display: block;
-            color: #cbd5e1;
-            text-decoration: none;
-            font-size: 13px;
-            transition: all 0.2s;
+            display: block; color: #cbd5e1;
+            text-decoration: none; font-size: 13px; transition: all 0.2s;
         }
-
-        .submenu-item:hover {
-            background: rgba(255,255,255,0.05);
-            color: #fff;
-        }
-
-        .submenu-item.active {
-            color: #3b82f6;
-            font-weight: 600;
-        }
+        .submenu-item:hover { background: rgba(255,255,255,0.05); color: #fff; }
+        .submenu-item.active { color: #3b82f6; font-weight: 600; }
 
         /* MAIN CONTENT */
         .main-wrapper {
@@ -193,111 +107,45 @@ $active_menu = $active_menu ?? 'dashboard';
             transition: margin-left 0.3s ease;
             min-height: 100vh;
         }
-
-        .main-wrapper.expanded {
-            margin-left: 0;
-        }
+        .main-wrapper.expanded { margin-left: 0; }
 
         .topbar {
-            background: #fff;
-            padding: 15px 25px;
+            background: #fff; padding: 15px 25px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            position: sticky;
-            top: 0;
-            z-index: 100;
+            display: flex; align-items: center; justify-content: space-between;
+            position: sticky; top: 0; z-index: 100;
         }
-
-        .topbar-left {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
+        .topbar-left { display: flex; align-items: center; gap: 15px; }
         .toggle-sidebar {
-            background: #f1f5f9;
-            border: none;
-            width: 40px;
-            height: 40px;
-            border-radius: 8px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            transition: all 0.2s;
+            background: #f1f5f9; border: none;
+            width: 40px; height: 40px; border-radius: 8px;
+            cursor: pointer; display: flex; align-items: center;
+            justify-content: center; font-size: 20px; transition: all 0.2s;
         }
-
-        .toggle-sidebar:hover {
-            background: #e2e8f0;
-        }
-
-        .page-title {
-            font-size: 22px;
-            font-weight: 700;
-            color: #1e293b;
-        }
-
-        .topbar-right {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
+        .toggle-sidebar:hover { background: #e2e8f0; }
+        .page-title { font-size: 22px; font-weight: 700; color: #1e293b; }
+        .topbar-right { display: flex; align-items: center; gap: 15px; }
         .btn-logout {
-            padding: 8px 16px;
-            background: #ef4444;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 600;
-            transition: all 0.2s;
-            text-decoration: none;
-            display: inline-block;
+            padding: 8px 16px; background: #ef4444; color: white;
+            border: none; border-radius: 8px; cursor: pointer;
+            font-size: 14px; font-weight: 600; transition: all 0.2s;
+            text-decoration: none; display: inline-block;
         }
+        .btn-logout:hover { background: #dc2626; }
 
-        .btn-logout:hover {
-            background: #dc2626;
-        }
+        .content { padding: 25px; }
 
-        .content {
-            padding: 25px;
-        }
-
-        /* RESPONSIVE */
         @media (max-width: 768px) {
-            .sidebar {
-                transform: translateX(-260px);
-            }
-            
-            .sidebar.show {
-                transform: translateX(0);
-            }
-            
-            .main-wrapper {
-                margin-left: 0;
-            }
+            .sidebar { transform: translateX(-260px); }
+            .sidebar.show { transform: translateX(0); }
+            .main-wrapper { margin-left: 0; }
         }
 
-        /* OVERLAY */
         .sidebar-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 999;
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,0.5); z-index: 999;
         }
-
-        .sidebar-overlay.show {
-            display: block;
-        }
+        .sidebar-overlay.show { display: block; }
     </style>
 </head>
 <body>
@@ -315,9 +163,11 @@ $active_menu = $active_menu ?? 'dashboard';
         </div>
 
         <nav class="sidebar-menu">
+
             <!-- Dashboard -->
             <div class="menu-section">
-                <a href="<?= base_url('index.php') ?>" class="menu-item <?= $active_menu === 'dashboard' ? 'active' : '' ?>">
+                <a href="<?= base_url('index.php') ?>"
+                   class="menu-item <?= $active_menu === 'dashboard' ? 'active' : '' ?>">
                     <span class="icon">📊</span>
                     <span class="text">Dashboard</span>
                 </a>
@@ -325,79 +175,84 @@ $active_menu = $active_menu ?? 'dashboard';
 
             <!-- IT SUPPORT Section -->
             <div class="menu-section">
-    <div class="menu-section-title">IT Support</div>
-    
-    <?php
-    // Hitung berapa menu yang visible untuk user ini
-    $visible_menus = 0;
-    $menus = [
-        'data-jadwal' => ['url' => 'pages/data-jadwal.php', 'icon' => '📅', 'text' => 'Data Jadwal'],
-        'booking-zoom' => ['url' => 'pages/booking-zoom.php', 'icon' => '🎥', 'text' => 'Booking Jadwal Zoom'],
-        'data-server' => ['url' => 'pages/data-server.php', 'icon' => '🖥️', 'text' => 'Data Server'],
-    ];
-    
-    foreach ($menus as $slug => $menu) {
-        if (is_admin() || has_permission($slug)) {
-            $visible_menus++;
-        }
-    }
-    ?>
-    
-    <?php if ($visible_menus > 0): ?>
-        <div class="menu-item" onclick="toggleSubmenu('it-support')">
-            <span class="icon">💻</span>
-            <span class="text">IT Support</span>
-            <span class="arrow">▸</span>
-        </div>
-        <div class="submenu" id="submenu-it-support">
-            <?php
-            // Data Jadwal
-            if (is_admin() || has_permission('data-jadwal')):
-            ?>
-                <a href="<?= base_url('pages/data-jadwal.php') ?>" class="submenu-item <?= $active_menu === 'data-jadwal' ? 'active' : '' ?>">
-                    📅 Data Jadwal
-                </a>
-            <?php endif; ?>
-            
-            <?php
-            // Booking Zoom
-            if (is_admin() || has_permission('booking-zoom')):
-            ?>
-                <a href="<?= base_url('pages/booking-zoom.php') ?>" class="submenu-item <?= in_array($active_menu, ['booking-zoom', 'data-zoom']) ? 'active' : '' ?>">
-                    🎥 Booking Jadwal Zoom
-                </a>
-            <?php endif; ?>
-            
-            <?php
-            // Data Server
-            if (is_admin() || has_permission('data-server')):
-            ?>
-                <a href="<?= base_url('pages/data-server.php') ?>" class="submenu-item <?= $active_menu === 'data-server' ? 'active' : '' ?>">
-                    🖥️ Data Server
-                </a>
-            <?php endif; ?>
-        </div>
-    <?php endif; ?>
-</div>
+                <div class="menu-section-title">IT Support</div>
 
+                <?php
+                // All submenu items under IT Support
+                $it_menus = [
+                    'data-jadwal'        => ['url' => 'pages/data-jadwal.php',        'icon' => '📅', 'text' => 'Data Jadwal'],
+                    'booking-zoom'       => ['url' => 'pages/booking-zoom.php',       'icon' => '🎥', 'text' => 'Booking Jadwal Zoom'],
+                    'data-server'        => ['url' => 'pages/data-server.php',        'icon' => '🖥️', 'text' => 'Data Server'],
+                    'it-support-jateng' => ['url' => 'pages/it-support-jateng.php',  'icon' => '👨‍💻', 'text' => 'IT Support Jateng'],
+                ];
+
+                $visible = 0;
+                foreach ($it_menus as $slug => $_) {
+                    if (is_admin() || has_permission($slug)) $visible++;
+                }
+                ?>
+
+                <?php if ($visible > 0): ?>
+                    <div class="menu-item" onclick="toggleSubmenu('it-support')">
+                        <span class="icon">💻</span>
+                        <span class="text">IT Support</span>
+                        <span class="arrow">▸</span>
+                    </div>
+                    <div class="submenu" id="submenu-it-support">
+
+                        <?php if (is_admin() || has_permission('data-jadwal')): ?>
+                            <a href="<?= base_url('pages/data-jadwal.php') ?>"
+                               class="submenu-item <?= $active_menu === 'data-jadwal' ? 'active' : '' ?>">
+                                📅 Data Jadwal
+                            </a>
+                        <?php endif; ?>
+
+                        <?php if (is_admin() || has_permission('booking-zoom')): ?>
+                            <a href="<?= base_url('pages/booking-zoom.php') ?>"
+                               class="submenu-item <?= in_array($active_menu, ['booking-zoom','data-zoom']) ? 'active' : '' ?>">
+                                🎥 Booking Jadwal Zoom
+                            </a>
+                        <?php endif; ?>
+
+                        <?php if (is_admin() || has_permission('data-server')): ?>
+                            <a href="<?= base_url('pages/data-server.php') ?>"
+                               class="submenu-item <?= $active_menu === 'data-server' ? 'active' : '' ?>">
+                                🖥️ Data Server
+                            </a>
+                        <?php endif; ?>
+
+                        <?php if (is_admin() || has_permission('it-support-jateng')): ?>
+                            <a href="<?= base_url('pages/it-support-jateng.php') ?>"
+                               class="submenu-item <?= $active_menu === 'it-support-jateng' ? 'active' : '' ?>">
+                                👨‍💻 IT Support Jateng
+                            </a>
+                        <?php endif; ?>
+
+                    </div>
+                <?php endif; ?>
+            </div>
+
+            <!-- ADMINISTRATOR (Admin Only) -->
             <?php if ($user['role'] === 'admin'): ?>
-            <!-- ADMINISTRATOR Section (Admin Only) -->
             <div class="menu-section">
                 <div class="menu-section-title">Administrator</div>
-                
+
                 <div class="menu-item" onclick="toggleSubmenu('administrator')">
                     <span class="icon">⚙️</span>
                     <span class="text">Administrator</span>
                     <span class="arrow">▸</span>
                 </div>
                 <div class="submenu" id="submenu-administrator">
-                    <a href="<?= base_url('pages/master-user.php') ?>" class="submenu-item <?= $active_menu === 'master-user' ? 'active' : '' ?>">
+                    <a href="<?= base_url('pages/master-user.php') ?>"
+                       class="submenu-item <?= $active_menu === 'master-user' ? 'active' : '' ?>">
                         👥 Master User
                     </a>
-                    <a href="<?= base_url('pages/master-ruangan.php') ?>" class="submenu-item <?= $active_menu === 'master-ruangan' ? 'active' : '' ?>">
+                    <a href="<?= base_url('pages/master-ruangan.php') ?>"
+                       class="submenu-item <?= $active_menu === 'master-ruangan' ? 'active' : '' ?>">
                         🏢 Master Ruangan
                     </a>
-                    <a href="<?= base_url('pages/master-it-support.php') ?>" class="submenu-item <?= $active_menu === 'master-it-support' ? 'active' : '' ?>">
+                    <a href="<?= base_url('pages/master-it-support.php') ?>"
+                       class="submenu-item <?= $active_menu === 'master-it-support' ? 'active' : '' ?>">
                         👨‍💻 Master IT Support
                     </a>
                 </div>
@@ -405,12 +260,16 @@ $active_menu = $active_menu ?? 'dashboard';
             <?php endif; ?>
 
             <!-- Logout -->
-            <div class="menu-section" style="margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px;">
-                <a href="<?= base_url('auth/logout.php') ?>" class="menu-item" onclick="return confirm('Yakin ingin logout?')">
+            <div class="menu-section"
+                 style="margin-top:20px;border-top:1px solid rgba(255,255,255,0.1);padding-top:10px;">
+                <a href="<?= base_url('auth/logout.php') ?>"
+                   class="menu-item"
+                   onclick="return confirm('Yakin ingin logout?')">
                     <span class="icon">🚪</span>
                     <span class="text">Logout</span>
                 </a>
             </div>
+
         </nav>
     </aside>
 
@@ -425,32 +284,33 @@ $active_menu = $active_menu ?? 'dashboard';
                 <h1 class="page-title"><?= h($page_title) ?></h1>
             </div>
             <div class="topbar-right">
-                <a href="<?= base_url('auth/logout.php') ?>" class="btn-logout" onclick="return confirm('Yakin ingin logout?')">Logout</a>
+                <a href="<?= base_url('auth/logout.php') ?>"
+                   class="btn-logout"
+                   onclick="return confirm('Yakin ingin logout?')">Logout</a>
             </div>
         </div>
 
         <div class="content">
-        <?php
-if (isset($content_file) && file_exists($content_file)) {
-    $IS_CONTENT = true;
-    include $content_file;
-    unset($IS_CONTENT);
-} else {
-    echo '<div style="padding:20px;background:#fee2e2;border:1px solid #ef4444;border-radius:8px;color:#991b1b;">
-            CONTENT FILE NOT FOUND: ' . htmlspecialchars($content_file ?? '(not set)') . '
-          </div>';
-}
-?>
+            <?php
+            if (isset($content_file) && file_exists($content_file)) {
+                $IS_CONTENT = true;
+                include $content_file;
+                unset($IS_CONTENT);
+            } else {
+                echo '<div style="padding:20px;background:#fee2e2;border:1px solid #ef4444;border-radius:8px;color:#991b1b;">
+                        CONTENT FILE NOT FOUND: ' . htmlspecialchars($content_file ?? '(not set)') . '
+                      </div>';
+            }
+            ?>
         </div>
     </div>
 
     <script>
-        // Toggle Sidebar
         function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
+            const sidebar     = document.getElementById('sidebar');
             const mainWrapper = document.getElementById('mainWrapper');
-            const overlay = document.getElementById('sidebarOverlay');
-            
+            const overlay     = document.getElementById('sidebarOverlay');
+
             if (window.innerWidth <= 768) {
                 sidebar.classList.toggle('show');
                 overlay.classList.toggle('show');
@@ -460,28 +320,25 @@ if (isset($content_file) && file_exists($content_file)) {
             }
         }
 
-        // Toggle Submenu
         function toggleSubmenu(name) {
-            const submenu = document.getElementById('submenu-' + name);
+            const submenu  = document.getElementById('submenu-' + name);
             const menuItem = submenu.previousElementSibling;
-            
             submenu.classList.toggle('show');
             menuItem.classList.toggle('expanded');
         }
 
-        // Auto expand active submenu
-        document.addEventListener('DOMContentLoaded', function() {
-            const activeSubmenuItem = document.querySelector('.submenu-item.active');
-            if (activeSubmenuItem) {
-                const submenu = activeSubmenuItem.closest('.submenu');
+        document.addEventListener('DOMContentLoaded', function () {
+            // Auto-expand submenu containing the active item
+            const activeItem = document.querySelector('.submenu-item.active');
+            if (activeItem) {
+                const submenu  = activeItem.closest('.submenu');
                 const menuItem = submenu.previousElementSibling;
                 submenu.classList.add('show');
                 menuItem.classList.add('expanded');
             }
         });
 
-        // Close sidebar on overlay click (mobile)
-        window.addEventListener('resize', function() {
+        window.addEventListener('resize', function () {
             if (window.innerWidth > 768) {
                 document.getElementById('sidebarOverlay').classList.remove('show');
             }
