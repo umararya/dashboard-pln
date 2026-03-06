@@ -241,12 +241,21 @@
                 <label>Link Zoom <span style="color:#ef4444;">*</span></label>
                 <select name="zoom_link" required>
                     <option value="">-- Pilih Link Zoom --</option>
-                    <?php foreach ($ZOOM_OPTIONS as $zoom): ?>
-                        <option value="<?= h($zoom) ?>" <?= ($zoom_link === $zoom) ? 'selected' : '' ?>>
-                            <?= h($zoom) ?>
+                    <?php foreach ($ZOOM_OPTIONS as $zoom): 
+                        $isBusy = in_array($zoom, $busy_zoom_links, true);
+                    ?>
+                        <option 
+                            value="<?= h($zoom) ?>" 
+                            <?= ($zoom_link === $zoom) ? 'selected' : '' ?>
+                            <?= $isBusy ? 'disabled style="color:#94a3b8;background:#f1f5f9;"' : '' ?>
+                        >
+                            <?= h($zoom) ?><?= $isBusy ? ' 🔴 (Sedang Dipakai)' : ' 🟢' ?>
                         </option>
                     <?php endforeach; ?>
                 </select>
+<small style="color:#64748b;font-size:12px;display:block;margin-top:4px;">
+    🟢 = Tersedia &nbsp;|&nbsp; 🔴 = Sedang dipakai (tidak bisa dipilih)
+</small>
                 <small style="color:#64748b;font-size:12px;display:block;margin-top:4px;">
                     Pilih akun Zoom yang akan digunakan
                 </small>

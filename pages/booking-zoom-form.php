@@ -15,6 +15,14 @@ require_permission('booking-zoom');
 
 $pdo = db();
 
+// Ambil zoom link yang sedang DIPAKAI (kondisi = DIPAKAI)
+$stmt_busy = $pdo->query("
+    SELECT DISTINCT zoom_link 
+    FROM zoom_bookings 
+    WHERE kondisi = 'DIPAKAI' AND zoom_link IS NOT NULL
+");
+$busy_zoom_links = $stmt_busy->fetchAll(PDO::FETCH_COLUMN);
+
 $ZOOM_OPTIONS = [
     'zoomplnuidjty001@gmail.com',
     'zoomplnuidjty002@gmail.com',

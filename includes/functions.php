@@ -111,4 +111,20 @@ function clean_input($data) {
     $data = htmlspecialchars($data);
     return $data;
 }
+
+/**
+ * Auto-update kondisi zoom booking yang sudah melewati end_datetime
+ * Dipanggil setiap kali halaman booking zoom dibuka
+ * Booking dengan end_datetime < NOW() dan kondisi DIPAKAI akan otomatis jadi KOSONG
+ */
+function auto_release_zoom_bookings(PDO $pdo): void {
+    $pdo->exec("
+        UPDATE zoom_bookings
+        SET kondisi = 'KOSONG'
+        WHERE kondisi = 'DIPAKAI'
+          AND end_datetime IS NOT NULL
+          AND end_datetime < NOW()
+    ");
+}
+
 require_once __DIR__ . '/functions-permissions.php';
