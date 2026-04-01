@@ -1,6 +1,6 @@
 <?php
 /**
- * Main Layout with Sidebar (UPDATED - with IT Support Jateng)
+ * Main Layout with Sidebar
  * Path: includes/layout.php
  */
 
@@ -178,12 +178,12 @@ $active_menu = $active_menu ?? 'dashboard';
                 <div class="menu-section-title">IT Support</div>
 
                 <?php
-                // All submenu items under IT Support
                 $it_menus = [
-                    'data-jadwal'        => ['url' => 'pages/data-jadwal.php',        'icon' => '📅', 'text' => 'Data Jadwal'],
-                    'booking-zoom'       => ['url' => 'pages/booking-zoom.php',       'icon' => '🎥', 'text' => 'Booking Jadwal Zoom'],
-                    'data-server'        => ['url' => 'pages/data-server.php',        'icon' => '🖥️', 'text' => 'Data Server'],
+                    'data-jadwal'       => ['url' => 'pages/data-jadwal.php',        'icon' => '📅',  'text' => 'Data Jadwal'],
+                    'booking-zoom'      => ['url' => 'pages/booking-zoom.php',       'icon' => '🎥',  'text' => 'Booking Jadwal Zoom'],
+                    'data-server'       => ['url' => 'pages/data-server.php',        'icon' => '🖥️',  'text' => 'Data Server'],
                     'it-support-jateng' => ['url' => 'pages/it-support-jateng.php',  'icon' => '👨‍💻', 'text' => 'IT Support Jateng'],
+                    'stock-perangkat'   => ['url' => 'pages/stock-perangkat.php',    'icon' => '📦',  'text' => 'Stock Perangkat IT'],
                 ];
 
                 $visible = 0;
@@ -225,6 +225,13 @@ $active_menu = $active_menu ?? 'dashboard';
                             <a href="<?= base_url('pages/it-support-jateng.php') ?>"
                                class="submenu-item <?= $active_menu === 'it-support-jateng' ? 'active' : '' ?>">
                                 👨‍💻 IT Support Jateng
+                            </a>
+                        <?php endif; ?>
+
+                        <?php if (is_admin() || has_permission('stock-perangkat')): ?>
+                            <a href="<?= base_url('pages/stock-perangkat.php') ?>"
+                               class="submenu-item <?= $active_menu === 'stock-perangkat' ? 'active' : '' ?>">
+                                📦 Stock Perangkat IT
                             </a>
                         <?php endif; ?>
 
@@ -328,7 +335,6 @@ $active_menu = $active_menu ?? 'dashboard';
         }
 
         document.addEventListener('DOMContentLoaded', function () {
-            // Auto-expand submenu containing the active item
             const activeItem = document.querySelector('.submenu-item.active');
             if (activeItem) {
                 const submenu  = activeItem.closest('.submenu');
