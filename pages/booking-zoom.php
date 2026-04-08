@@ -17,6 +17,19 @@ $pdo = db();
 
 $KONDISI_OPTIONS = ['KOSONG', 'DIPAKAI'];
 
+// Semua zoom links yang tersedia (sama persis dengan booking-zoom-form.php)
+$ALL_ZOOM_LINKS = [
+    'zoomplnuidjty001@gmail.com',
+    'zoomplnuidjty002@gmail.com',
+    'zoomplnuidjty003@gmail.com',
+    'zoomplnuidjty004@gmail.com',
+    'zoomplnuidjty005@gmail.com',
+    'zoomplnuidjty0066@gmail.com',
+    'zoomplnuidjty007@gmail.com',
+    'zoomplnuidjty008@gmail.com',
+    'zoomplnuidjty009@gmail.com',
+];
+
 // Handle POST - Update Kondisi
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'update_kondisi') {
     $id          = (int)($_POST['booking_id'] ?? 0);
@@ -99,6 +112,21 @@ $units_all = $pdo->query(
 )->fetchAll(PDO::FETCH_COLUMN);
 
 $is_filtered = ($filter_unit || $filter_kondisi || $filter_zoom || $filter_from || $filter_to);
+
+// ── STATUS SEMUA ZOOM LINKS ───────────────────────────────────────────────────
+// Ambil zoom link yang sedang DIPAKAI
+$stmt_busy = $pdo->query("
+    SELECT DISTINCT zoom_link
+    FROM zoom_bookings
+    WHERE kondisi = 'DIPAKAI' AND zoom_link IS NOT NULL
+");
+$busy_zoom_links = $stmt_busy->fetchAll(PDO::FETCH_COLUMN);
+
+// Bangun array status per zoom link
+$zoom_status_map = [];
+foreach ($ALL_ZOOM_LINKS as $zl) {
+    $zoom_status_map[$zl] = in_array($zl, $busy_zoom_links, true) ? 'DIPAKAI' : 'KOSONG';
+}
 
 $page_title   = "Booking Jadwal Zoom";
 $active_menu  = "booking-zoom";

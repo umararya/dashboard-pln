@@ -262,6 +262,10 @@ $active_menu = $active_menu ?? 'dashboard';
                        class="submenu-item <?= $active_menu === 'master-it-support' ? 'active' : '' ?>">
                         👨‍💻 Master IT Support
                     </a>
+                    <a href="<?= base_url('pages/master-zoom.php') ?>"
+         class="submenu-item <?= $active_menu === 'master-zoom' ? 'active' : '' ?>">
+          🎥 Master Zoom
+  </a>
                 </div>
             </div>
             <?php endif; ?>

@@ -168,7 +168,228 @@
         grid-template-columns: 1fr;
     }
 }
+
+/* ── Zoom Status Button ──────────────────────────────────── */
+.btn-zoom-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 9px 16px;
+    background: #f1f5f9;
+    color: #334155;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    white-space: nowrap;
+}
+.btn-zoom-status:hover {
+    background: #e2e8f0;
+    border-color: #94a3b8;
+    color: #1e293b;
+}
+
+/* ── Zoom Status Modal ───────────────────────────────────── */
+.zoom-status-modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 2000;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+.zoom-status-modal-overlay.show {
+    display: flex;
+}
+.zoom-status-modal {
+    background: #fff;
+    border-radius: 14px;
+    width: 100%;
+    max-width: 540px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+    animation: modalFadeIn 0.25s ease;
+}
+@keyframes modalFadeIn {
+    from { opacity: 0; transform: translateY(-16px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+.zoom-modal-header {
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    background: #fff;
+    z-index: 1;
+}
+.zoom-modal-header h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 700;
+    color: #1e293b;
+}
+.zoom-modal-close {
+    background: none;
+    border: none;
+    font-size: 26px;
+    cursor: pointer;
+    color: #94a3b8;
+    line-height: 1;
+    padding: 0 4px;
+}
+.zoom-modal-close:hover { color: #475569; }
+
+.zoom-status-legend {
+    display: flex;
+    gap: 16px;
+    padding: 12px 24px;
+    background: #f8fafc;
+    border-bottom: 1px solid #e5e7eb;
+    font-size: 13px;
+}
+.legend-dot {
+    display: inline-block;
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    margin-right: 5px;
+}
+.legend-dot.kosong  { background: #10b981; }
+.legend-dot.dipakai { background: #f59e0b; }
+
+.zoom-link-list {
+    padding: 16px 24px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.zoom-link-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-radius: 10px;
+    border: 1.5px solid #e5e7eb;
+    transition: border-color 0.2s;
+    gap: 12px;
+}
+.zoom-link-item.kosong {
+    background: #f0fdf4;
+    border-color: #bbf7d0;
+}
+.zoom-link-item.dipakai {
+    background: #fffbeb;
+    border-color: #fde68a;
+}
+.zoom-link-item:hover.kosong  { border-color: #6ee7b7; }
+.zoom-link-item:hover.dipakai { border-color: #fcd34d; }
+
+.zoom-link-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    min-width: 0;
+}
+.zoom-link-number {
+    width: 26px; height: 26px;
+    background: #e2e8f0;
+    color: #475569;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700;
+    flex-shrink: 0;
+}
+.zoom-link-email {
+    font-size: 13px;
+    font-weight: 600;
+    color: #1e293b;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.zoom-kondisi-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+.zoom-kondisi-badge.kosong {
+    background: #d1fae5;
+    color: #065f46;
+}
+.zoom-kondisi-badge.dipakai {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.zoom-summary-bar {
+    margin: 0 24px 16px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    background: #f1f5f9;
+    font-size: 13px;
+    color: #475569;
+    display: flex;
+    gap: 20px;
+}
+.zoom-summary-bar span strong { color: #1e293b; }
 </style>
+
+<!-- ── ZOOM STATUS MODAL ──────────────────────────────────────── -->
+<div class="zoom-status-modal-overlay" id="zoomStatusModal" onclick="closeZoomModal(event)">
+    <div class="zoom-status-modal">
+        <div class="zoom-modal-header">
+            <h3>📋 Status Zoom Links</h3>
+            <button class="zoom-modal-close" onclick="closeZoomModal()">&times;</button>
+        </div>
+
+        <div class="zoom-status-legend">
+            <span><span class="legend-dot kosong"></span> KOSONG = Tersedia</span>
+            <span><span class="legend-dot dipakai"></span> DIPAKAI = Sedang digunakan</span>
+        </div>
+
+        <?php
+        $total_kosong  = count(array_filter($zoom_status_map, fn($s) => $s === 'KOSONG'));
+        $total_dipakai = count($zoom_status_map) - $total_kosong;
+        ?>
+        <div class="zoom-summary-bar">
+            <span>🟢 Tersedia: <strong><?= $total_kosong ?></strong></span>
+            <span>🟡 Dipakai: <strong><?= $total_dipakai ?></strong></span>
+            <span>Total: <strong><?= count($zoom_status_map) ?></strong></span>
+        </div>
+
+        <div class="zoom-link-list">
+            <?php $i = 1; foreach ($zoom_status_map as $zl => $status): ?>
+                <?php $isKosong = $status === 'KOSONG'; ?>
+                <div class="zoom-link-item <?= $isKosong ? 'kosong' : 'dipakai' ?>">
+                    <div class="zoom-link-info">
+                        <span class="zoom-link-number"><?= $i++ ?></span>
+                        <span class="zoom-link-email" title="<?= h($zl) ?>"><?= h($zl) ?></span>
+                    </div>
+                    <span class="zoom-kondisi-badge <?= $isKosong ? 'kosong' : 'dipakai' ?>">
+                        <?= $isKosong ? '🟢 KOSONG' : '🟡 DIPAKAI' ?>
+                    </span>
+                </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+</div>
 
 <div class="card">
     <!-- HEADER -->
@@ -182,7 +403,26 @@
                 <?php endif; ?>
             </p>
         </div>
-        <div>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+            <!-- Button Status Zoom (kiri) -->
+            <button type="button" class="btn-zoom-status" onclick="openZoomModal()">
+                📋 Status Zoom
+                <?php if ($total_dipakai > 0): ?>
+                    <span style="
+                        background:#f59e0b;color:#fff;
+                        border-radius:20px;padding:1px 8px;
+                        font-size:11px;font-weight:700;
+                    "><?= $total_dipakai ?> dipakai</span>
+                <?php else: ?>
+                    <span style="
+                        background:#10b981;color:#fff;
+                        border-radius:20px;padding:1px 8px;
+                        font-size:11px;font-weight:700;
+                    ">semua kosong</span>
+                <?php endif; ?>
+            </button>
+
+            <!-- Button Booking Baru (kanan) -->
             <a class="btn btn-primary btn-sm" href="<?= base_url('pages/booking-zoom-form.php') ?>">
                 ➕ Booking Baru
             </a>
@@ -240,7 +480,6 @@
                             'UP3 Sukoharjo',
                             'UP2D Jateng & DIY'
                         ];
-                        // Gabungkan: dari DB + opsi tetap
                         $unit_options = array_unique(array_merge($ALL_UNITS, $units_all));
                         sort($unit_options);
                         foreach ($unit_options as $u): ?>
@@ -428,3 +667,21 @@
         </div>
     <?php endif; ?>
 </div>
+
+<script>
+function openZoomModal() {
+    document.getElementById('zoomStatusModal').classList.add('show');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeZoomModal(e) {
+    if (!e || e.target === document.getElementById('zoomStatusModal') || e.currentTarget.tagName === 'BUTTON') {
+        document.getElementById('zoomStatusModal').classList.remove('show');
+        document.body.style.overflow = '';
+    }
+}
+
+document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') closeZoomModal();
+});
+</script>
