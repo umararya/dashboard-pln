@@ -18,17 +18,25 @@ $pdo = db();
 $KONDISI_OPTIONS = ['KOSONG', 'DIPAKAI'];
 
 // Semua zoom links yang tersedia (sama persis dengan booking-zoom-form.php)
-$ALL_ZOOM_LINKS = [
-    'zoomplnuidjty001@gmail.com',
-    'zoomplnuidjty002@gmail.com',
-    'zoomplnuidjty003@gmail.com',
-    'zoomplnuidjty004@gmail.com',
-    'zoomplnuidjty005@gmail.com',
-    'zoomplnuidjty0066@gmail.com',
-    'zoomplnuidjty007@gmail.com',
-    'zoomplnuidjty008@gmail.com',
-    'zoomplnuidjty009@gmail.com',
-];
+// SESUDAH (dari DB):
+$ALL_ZOOM_LINKS = $pdo->query(
+    "SELECT email FROM zoom_links WHERE is_active = 1 ORDER BY sort_order ASC, id ASC"
+)->fetchAll(PDO::FETCH_COLUMN);
+
+// Fallback jika tabel kosong
+if (empty($ALL_ZOOM_LINKS)) {
+    $ALL_ZOOM_LINKS = [
+        'zoomplnuidjty001@gmail.com',
+        'zoomplnuidjty002@gmail.com',
+        'zoomplnuidjty003@gmail.com',
+        'zoomplnuidjty004@gmail.com',
+        'zoomplnuidjty005@gmail.com',
+        'zoomplnuidjty0066@gmail.com',
+        'zoomplnuidjty007@gmail.com',
+        'zoomplnuidjty008@gmail.com',
+        'zoomplnuidjty009@gmail.com',
+    ];
+}
 
 // Handle POST - Update Kondisi
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'update_kondisi') {
