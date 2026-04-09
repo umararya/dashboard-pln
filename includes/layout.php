@@ -274,6 +274,10 @@ $active_menu = $active_menu ?? 'dashboard';
                        class="submenu-item <?= $active_menu === 'master-zoom' ? 'active' : '' ?>">
                         🎥 Master Zoom
                     </a>
+                    <a href="<?= base_url('pages/master-perangkat-aplikasi.php') ?>"
+                       class="submenu-item <?= $active_menu === 'master-perangkat-aplikasi' ? 'active' : '' ?>">
+                        🖥️ Master Perangkat Aplikasi
+                    </a>
                 </div>
             </div>
             <?php endif; ?>
