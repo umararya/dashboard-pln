@@ -18,51 +18,48 @@ $pdo    = db();
 $errors = [];
 
 // Retain POST values on validation error
-$nama_perangkat      = $_POST['nama_perangkat']      ?? '';
-$url                 = $_POST['url']                 ?? '';
-$ip                  = $_POST['ip']                  ?? '';
-$brand               = $_POST['brand']               ?? '';
-$type                = $_POST['type']                ?? '';
-$server              = $_POST['server']              ?? '';
-$os                  = $_POST['os']                  ?? '';
-$lokasi              = $_POST['lokasi']              ?? '';
-$bidang              = $_POST['bidang']              ?? '';
-$msb_sub_bidang      = $_POST['msb_sub_bidang']      ?? '';
-$firmware_patch      = $_POST['firmware_patch']      ?? '⌛';
-$database_patch      = $_POST['database_patch']      ?? '⌛';
+$nama_perangkat       = $_POST['nama_perangkat']       ?? '';
+$url                  = $_POST['url']                  ?? '';
+$ip                   = $_POST['ip']                   ?? '';
+$brand                = $_POST['brand']                ?? '';
+$type                 = $_POST['type']                 ?? '';
+$server               = $_POST['server']               ?? '';
+$os                   = $_POST['os']                   ?? '';
+$lokasi               = $_POST['lokasi']               ?? '';
+$bidang               = $_POST['bidang']               ?? '';
+$msb_sub_bidang       = $_POST['msb_sub_bidang']       ?? '';
+$firmware_patch       = $_POST['firmware_patch']       ?? '⌛';
 $network_device_patch = $_POST['network_device_patch'] ?? '⌛';
-$pemilik_aset        = $_POST['pemilik_aset']        ?? '';
+$pemilik_aset         = $_POST['pemilik_aset']         ?? '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'add_perangkat_aplikasi') {
-    $nama_perangkat      = trim($nama_perangkat);
-    $url                 = trim($url);
-    $ip                  = trim($ip);
-    $brand               = trim($brand);
-    $type                = trim($type);
-    $server              = trim($server);
-    $os                  = trim($os);
-    $lokasi              = trim($lokasi);
-    $bidang              = trim($bidang);
-    $msb_sub_bidang      = trim($msb_sub_bidang);
-    $firmware_patch      = trim($firmware_patch);
-    $database_patch      = trim($database_patch);
+    $nama_perangkat       = trim($nama_perangkat);
+    $url                  = trim($url);
+    $ip                   = trim($ip);
+    $brand                = trim($brand);
+    $type                 = trim($type);
+    $server               = trim($server);
+    $os                   = trim($os);
+    $lokasi               = trim($lokasi);
+    $bidang               = trim($bidang);
+    $msb_sub_bidang       = trim($msb_sub_bidang);
+    $firmware_patch       = trim($firmware_patch);
     $network_device_patch = trim($network_device_patch);
-    $pemilik_aset        = trim($pemilik_aset);
+    $pemilik_aset         = trim($pemilik_aset);
 
     if ($nama_perangkat === '') $errors[] = 'Nama Perangkat wajib dipilih.';
-    if (!in_array($firmware_patch,      array_keys($PATCH_OPTIONS), true)) $errors[] = 'Firmware Patch tidak valid.';
-    if (!in_array($database_patch,      array_keys($PATCH_OPTIONS), true)) $errors[] = 'Database Patch tidak valid.';
+    if (!in_array($firmware_patch,       array_keys($PATCH_OPTIONS), true)) $errors[] = 'Firmware Patch tidak valid.';
     if (!in_array($network_device_patch, array_keys($PATCH_OPTIONS), true)) $errors[] = 'Network Device Patch tidak valid.';
 
     if (!$errors) {
         $stmt = $pdo->prepare("
             INSERT INTO perangkat_aplikasi
                 (nama_perangkat, url, ip, brand, type, server, os, lokasi, bidang,
-                 msb_sub_bidang, firmware_patch, database_patch, network_device_patch,
+                 msb_sub_bidang, firmware_patch, network_device_patch,
                  pemilik_aset, created_by)
             VALUES
                 (:nama_perangkat, :url, :ip, :brand, :type, :server, :os, :lokasi, :bidang,
-                 :msb_sub_bidang, :firmware_patch, :database_patch, :network_device_patch,
+                 :msb_sub_bidang, :firmware_patch, :network_device_patch,
                  :pemilik_aset, :created_by)
         ");
         $stmt->execute([
@@ -77,7 +74,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'add_p
             ':bidang'              => $bidang,
             ':msb_sub_bidang'      => $msb_sub_bidang,
             ':firmware_patch'      => $firmware_patch,
-            ':database_patch'      => $database_patch,
             ':network_device_patch' => $network_device_patch,
             ':pemilik_aset'        => $pemilik_aset,
             ':created_by'          => $_SESSION['user_id'] ?? null,

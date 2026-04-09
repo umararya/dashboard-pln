@@ -9,9 +9,9 @@
     gap: 18px;
     margin-bottom: 20px;
 }
-.pa-grid-3 {
+.pa-grid-2 {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    grid-template-columns: 1fr 1fr;
     gap: 16px;
     margin-bottom: 20px;
 }
@@ -203,22 +203,12 @@
                 </div>
             </div>
 
-            <div class="pa-grid-3">
+            <div class="pa-grid-2">
                 <div class="form-group">
                     <label>Firmware Patch</label>
                     <select name="firmware_patch">
                         <?php foreach ($PATCH_OPTIONS as $val => $label): ?>
                             <option value="<?= h($val) ?>" <?= ($firmware_patch === $val) ? 'selected' : '' ?>>
-                                <?= h($label) ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Database Patch</label>
-                    <select name="database_patch">
-                        <?php foreach ($PATCH_OPTIONS as $val => $label): ?>
-                            <option value="<?= h($val) ?>" <?= ($database_patch === $val) ? 'selected' : '' ?>>
                                 <?= h($label) ?>
                             </option>
                         <?php endforeach; ?>

@@ -99,7 +99,7 @@ function patch_badge_class(string $val): string {
         '✅'  => 'patch-ok',
         '❌'  => 'patch-not',
         '–'   => 'patch-na',
-        default => 'patch-pending',  // ⌛ or anything else
+        default => 'patch-pending',
     };
 }
 ?>
@@ -158,7 +158,6 @@ function patch_badge_class(string $val): string {
                             <th>Bidang</th>
                             <th>MSB / Sub Bidang</th>
                             <th style="width:90px;">Firmware</th>
-                            <th style="width:90px;">Database</th>
                             <th style="width:90px;">Network</th>
                             <th>Pemilik Aset</th>
                             <th style="width:56px;">Oleh</th>
@@ -204,17 +203,13 @@ function patch_badge_class(string $val): string {
                                     <?php else: ?>—<?php endif; ?>
                                 </td>
                                 <td><?= h($r['msb_sub_bidang'] ?: '—') ?></td>
-                                <!-- Patch badges -->
+                                <!-- Firmware Patch -->
                                 <td>
                                     <span class="patch-badge <?= patch_badge_class($r['firmware_patch'] ?? '⌛') ?>">
                                         <?= h($r['firmware_patch'] ?? '⌛') ?>
                                     </span>
                                 </td>
-                                <td>
-                                    <span class="patch-badge <?= patch_badge_class($r['database_patch'] ?? '⌛') ?>">
-                                        <?= h($r['database_patch'] ?? '⌛') ?>
-                                    </span>
-                                </td>
+                                <!-- Network Device Patch -->
                                 <td>
                                     <span class="patch-badge <?= patch_badge_class($r['network_device_patch'] ?? '⌛') ?>">
                                         <?= h($r['network_device_patch'] ?? '⌛') ?>
@@ -267,7 +262,7 @@ function patch_badge_class(string $val): string {
             <?php endif; ?>
 
         <?php endif; ?>
-    </div><!-- /padding -->
+    </div>
 </div>
 
 <script>
@@ -276,8 +271,8 @@ function patch_badge_class(string $val): string {
     const clearBtn = document.getElementById('paClearBtn');
     const noResult = document.getElementById('paNoResult');
     const kwEl     = document.getElementById('paKeyword');
-    // Cols: 1=Nama, 2=URL, 3=IP, 4=Brand, 5=Type, 6=Server, 7=OS, 8=Lokasi, 9=Bidang, 10=MSB, 14=Pemilik
-    const COLS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 14];
+    // Cols: 1=Nama, 2=URL, 3=IP, 4=Brand, 5=Type, 6=Server, 7=OS, 8=Lokasi, 9=Bidang, 10=MSB, 13=Pemilik
+    const COLS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 13];
 
     if (!input) return;
 

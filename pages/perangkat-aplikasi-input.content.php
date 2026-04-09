@@ -9,9 +9,9 @@
     gap: 18px;
     margin-bottom: 20px;
 }
-.pa-grid-3 {
+.pa-grid-2 {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    grid-template-columns: 1fr 1fr;
     gap: 16px;
     margin-bottom: 20px;
 }
@@ -45,11 +45,9 @@
 }
 .form-divider { border: none; border-top: 2px solid #e5e7eb; margin: 24px 0 20px; }
 
-/* Patch select — styled by value */
 .patch-select { font-weight: 700 !important; }
 .patch-select option { font-weight: 600; }
 
-/* Patch info legend */
 .patch-legend {
     background: #f8fafc;
     border: 1px solid #e5e7eb;
@@ -219,22 +217,12 @@
                 </div>
             </div>
 
-            <div class="pa-grid-3">
+            <div class="pa-grid-2">
                 <div class="form-group">
                     <label>Firmware Patch</label>
                     <select name="firmware_patch" class="patch-select">
                         <?php foreach ($PATCH_OPTIONS as $val => $label): ?>
                             <option value="<?= h($val) ?>" <?= ($firmware_patch === $val) ? 'selected' : '' ?>>
-                                <?= h($label) ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Database Patch</label>
-                    <select name="database_patch" class="patch-select">
-                        <?php foreach ($PATCH_OPTIONS as $val => $label): ?>
-                            <option value="<?= h($val) ?>" <?= ($database_patch === $val) ? 'selected' : '' ?>>
                                 <?= h($label) ?>
                             </option>
                         <?php endforeach; ?>
