@@ -179,11 +179,12 @@ $active_menu = $active_menu ?? 'dashboard';
 
                 <?php
                 $it_menus = [
-                    'data-jadwal'       => ['url' => 'pages/data-jadwal.php',        'icon' => '📅',  'text' => 'Data Jadwal'],
-                    'booking-zoom'      => ['url' => 'pages/booking-zoom.php',       'icon' => '🎥',  'text' => 'Booking Jadwal Zoom'],
-                    'data-server'       => ['url' => 'pages/data-server.php',        'icon' => '🖥️',  'text' => 'Data Server'],
-                    'it-support-jateng' => ['url' => 'pages/it-support-jateng.php',  'icon' => '👨‍💻', 'text' => 'IT Support Jateng'],
-                    'stock-perangkat'   => ['url' => 'pages/stock-perangkat.php',    'icon' => '📦',  'text' => 'Stock Perangkat IT'],
+                    'data-jadwal'        => ['url' => 'pages/data-jadwal.php',         'icon' => '📅',  'text' => 'Data Jadwal'],
+                    'booking-zoom'       => ['url' => 'pages/booking-zoom.php',        'icon' => '🎥',  'text' => 'Booking Jadwal Zoom'],
+                    'data-server'        => ['url' => 'pages/data-server.php',         'icon' => '🖥️',  'text' => 'Data Server'],
+                    'it-support-jateng'  => ['url' => 'pages/it-support-jateng.php',   'icon' => '👨‍💻', 'text' => 'IT Support Jateng'],
+                    'stock-perangkat'    => ['url' => 'pages/stock-perangkat.php',     'icon' => '📦',  'text' => 'Stock Perangkat IT'],
+                    'perangkat-aplikasi' => ['url' => 'pages/perangkat-aplikasi.php',  'icon' => '🗂️',  'text' => 'Perangkat Aplikasi'],
                 ];
 
                 $visible = 0;
@@ -235,6 +236,13 @@ $active_menu = $active_menu ?? 'dashboard';
                             </a>
                         <?php endif; ?>
 
+                        <?php if (is_admin() || has_permission('perangkat-aplikasi')): ?>
+                            <a href="<?= base_url('pages/perangkat-aplikasi.php') ?>"
+                               class="submenu-item <?= $active_menu === 'perangkat-aplikasi' ? 'active' : '' ?>">
+                                🗂️ Perangkat Aplikasi
+                            </a>
+                        <?php endif; ?>
+
                     </div>
                 <?php endif; ?>
             </div>
@@ -263,9 +271,9 @@ $active_menu = $active_menu ?? 'dashboard';
                         👨‍💻 Master IT Support
                     </a>
                     <a href="<?= base_url('pages/master-zoom.php') ?>"
-         class="submenu-item <?= $active_menu === 'master-zoom' ? 'active' : '' ?>">
-          🎥 Master Zoom
-  </a>
+                       class="submenu-item <?= $active_menu === 'master-zoom' ? 'active' : '' ?>">
+                        🎥 Master Zoom
+                    </a>
                 </div>
             </div>
             <?php endif; ?>
