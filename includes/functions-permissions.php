@@ -82,11 +82,15 @@ function get_available_pages() {
             'icon'        => '👨‍💻',
             'description' => 'Data Personil IT Support Jateng',
         ],
-        // ── NEW ──────────────────────────────────────────────
         'stock-perangkat' => [
             'name'        => 'Stock Perangkat IT',
             'icon'        => '📦',
             'description' => 'Data stock & inventaris perangkat IT',
+        ],
+        'perangkat-aplikasi' => [
+            'name'        => 'Perangkat Aplikasi',
+            'icon'        => '🗂️',
+            'description' => 'Inventaris & status patch perangkat aplikasi',
         ],
     ];
 }

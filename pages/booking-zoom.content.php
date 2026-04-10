@@ -1,23 +1,148 @@
 <?php
 // pages/booking-zoom.content.php
-// Halaman utama: tabel data zoom + filter
+// Variabel yang tersedia dari controller (booking-zoom.php):
+// $rows, $is_filtered, $filter_unit, $filter_kondisi, $filter_zoom, $filter_from, $filter_to
+// $zoom_links_all   → distinct zoom_link dari tabel booking (untuk filter dropdown)
+// $zoom_links_active → email aktif dari tabel zoom_links (untuk availability checker & form)
+// $units_all        → distinct unit dari tabel booking (untuk filter dropdown)
 ?>
 
 <style>
-/* ── Filter Bar ────────────────────────────────────────────── */
+/* ── Availability Checker ─────────────────────────────────────── */
+.avail-section {
+    padding: 20px 25px 24px;
+    border-bottom: 1px solid #e5e7eb;
+}
+.avail-section h3 {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0 0 16px 0;
+}
+.avail-date-controls {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 18px;
+}
+.avail-shortcut {
+    padding: 8px 16px;
+    border: 1.5px solid #d1d5db;
+    border-radius: 8px;
+    background: #f8fafc;
+    color: #374151;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+.avail-shortcut:hover { border-color: #3b82f6; color: #1d4ed8; background: #eff6ff; }
+.avail-shortcut.active { background: #3b82f6; color: #fff; border-color: #3b82f6; }
+
+.avail-date-input {
+    padding: 8px 12px;
+    border: 1.5px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+.avail-date-input:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
+
+.zoom-avail-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    gap: 10px;
+}
+.zoom-avail-card {
+    background: #f8fafc;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 12px 14px;
+}
+.zoom-avail-card.kosong  { border-color: #a7f3d0; background: #f0fdf9; }
+.zoom-avail-card.dipakai { border-color: #fcd34d; background: #fffbeb; }
+
+.zoom-avail-card .card-zoom-name {
+    font-size: 12px;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 6px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.zoom-avail-card .card-zoom-email {
+    font-size: 11px;
+    color: #64748b;
+    margin-bottom: 8px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.zoom-avail-card .card-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+    margin-bottom: 6px;
+}
+.zoom-avail-card.kosong  .card-status { background: #d1fae5; color: #065f46; }
+.zoom-avail-card.dipakai .card-status { background: #fef3c7; color: #92400e; }
+
+.zoom-avail-card .card-booking-info { font-size: 11px; color: #64748b; line-height: 1.5; }
+.zoom-avail-card .card-booking-info .booking-row {
+    padding: 3px 0;
+    border-top: 1px solid #e5e7eb;
+    margin-top: 4px;
+}
+.zoom-avail-card .card-booking-info .booking-row:first-child { border-top: none; margin-top: 0; }
+
+.avail-legend {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 14px;
+    font-size: 12px;
+    color: #64748b;
+}
+.avail-legend span { display: flex; align-items: center; gap: 5px; }
+.legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.legend-dot.kosong  { background: #10b981; }
+.legend-dot.dipakai { background: #f59e0b; }
+
+.avail-summary-bar { display: flex; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
+.avail-summary-pill {
+    padding: 5px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+}
+.avail-summary-pill.kosong  { background: #d1fae5; color: #065f46; }
+.avail-summary-pill.dipakai { background: #fef3c7; color: #92400e; }
+
+.avail-empty {
+    text-align: center;
+    padding: 30px;
+    color: #94a3b8;
+    font-size: 13px;
+}
+
+/* ── Filter Bar ──────────────────────────────────────────────── */
 .filter-bar {
     padding: 18px 25px;
     background: #f8fafc;
     border-bottom: 1px solid #e5e7eb;
 }
-
 .filter-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
     gap: 12px;
     align-items: end;
 }
-
 .filter-field label {
     display: block;
     font-size: 11px;
@@ -27,7 +152,6 @@
     letter-spacing: 0.5px;
     margin-bottom: 5px;
 }
-
 .filter-field select,
 .filter-field input[type="date"] {
     width: 100%;
@@ -40,20 +164,12 @@
     box-sizing: border-box;
     transition: border-color 0.2s;
 }
-
 .filter-field select:focus,
 .filter-field input[type="date"]:focus {
     border-color: #3b82f6;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
-
-.filter-actions {
-    display: flex;
-    gap: 8px;
-    align-items: flex-end;
-    padding-top: 0;
-}
-
+.filter-actions { display: flex; gap: 8px; align-items: flex-end; }
 .btn-filter {
     padding: 9px 18px;
     border-radius: 8px;
@@ -63,16 +179,8 @@
     border: none;
     white-space: nowrap;
 }
-
-.btn-filter.primary {
-    background: #3b82f6;
-    color: #fff;
-}
-
-.btn-filter.primary:hover {
-    background: #2563eb;
-}
-
+.btn-filter.primary { background: #3b82f6; color: #fff; }
+.btn-filter.primary:hover { background: #2563eb; }
 .btn-filter.reset {
     background: #f1f5f9;
     color: #475569;
@@ -81,10 +189,7 @@
     display: inline-flex;
     align-items: center;
 }
-
-.btn-filter.reset:hover {
-    background: #e2e8f0;
-}
+.btn-filter.reset:hover { background: #e2e8f0; }
 
 .filter-active-badge {
     display: inline-flex;
@@ -99,7 +204,7 @@
     margin-left: 10px;
 }
 
-/* ── Table ───────────────────────────────────────────────── */
+/* ── Table ──────────────────────────────────────────────────── */
 .kondisi-select {
     padding: 6px 10px;
     border: 1px solid #d1d5db;
@@ -108,18 +213,8 @@
     font-weight: 600;
     cursor: pointer;
 }
-
-.kondisi-select.kosong {
-    background: #d1fae5;
-    color: #065f46;
-    border-color: #10b981;
-}
-
-.kondisi-select.dipakai {
-    background: #fef3c7;
-    color: #92400e;
-    border-color: #f59e0b;
-}
+.kondisi-select.kosong  { background: #d1fae5; color: #065f46; border-color: #10b981; }
+.kondisi-select.dipakai { background: #fef3c7; color: #92400e; border-color: #f59e0b; }
 
 .unit-badge {
     display: inline-block;
@@ -132,20 +227,8 @@
     color: #0369a1;
     white-space: nowrap;
 }
-
-.time-range .date-part {
-    font-weight: 700;
-    font-size: 13px;
-    color: #1e293b;
-    display: block;
-}
-
-.time-range .time-part {
-    font-size: 12px;
-    color: #64748b;
-    display: block;
-}
-
+.time-range .date-part { font-weight: 700; font-size: 13px; color: #1e293b; display: block; }
+.time-range .time-part { font-size: 12px; color: #64748b; display: block; }
 .duration-pill {
     display: inline-block;
     background: #f1f5f9;
@@ -158,238 +241,33 @@
 }
 
 @media (max-width: 768px) {
-    .filter-grid {
-        grid-template-columns: 1fr 1fr;
-    }
+    .filter-grid       { grid-template-columns: 1fr 1fr; }
+    .zoom-avail-grid   { grid-template-columns: 1fr 1fr; }
 }
-
 @media (max-width: 480px) {
-    .filter-grid {
-        grid-template-columns: 1fr;
-    }
+    .filter-grid       { grid-template-columns: 1fr; }
+    .zoom-avail-grid   { grid-template-columns: 1fr; }
 }
-
-/* ── Zoom Status Button ──────────────────────────────────── */
-.btn-zoom-status {
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    padding: 9px 16px;
-    background: #f1f5f9;
-    color: #334155;
-    border: 1.5px solid #cbd5e1;
-    border-radius: 8px;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-    text-decoration: none;
-    white-space: nowrap;
-}
-.btn-zoom-status:hover {
-    background: #e2e8f0;
-    border-color: #94a3b8;
-    color: #1e293b;
-}
-
-/* ── Zoom Status Modal ───────────────────────────────────── */
-.zoom-status-modal-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 2000;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-}
-.zoom-status-modal-overlay.show {
-    display: flex;
-}
-.zoom-status-modal {
-    background: #fff;
-    border-radius: 14px;
-    width: 100%;
-    max-width: 540px;
-    max-height: 90vh;
-    overflow-y: auto;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
-    animation: modalFadeIn 0.25s ease;
-}
-@keyframes modalFadeIn {
-    from { opacity: 0; transform: translateY(-16px); }
-    to   { opacity: 1; transform: translateY(0); }
-}
-.zoom-modal-header {
-    padding: 20px 24px 16px;
-    border-bottom: 1px solid #e5e7eb;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    position: sticky;
-    top: 0;
-    background: #fff;
-    z-index: 1;
-}
-.zoom-modal-header h3 {
-    margin: 0;
-    font-size: 18px;
-    font-weight: 700;
-    color: #1e293b;
-}
-.zoom-modal-close {
-    background: none;
-    border: none;
-    font-size: 26px;
-    cursor: pointer;
-    color: #94a3b8;
-    line-height: 1;
-    padding: 0 4px;
-}
-.zoom-modal-close:hover { color: #475569; }
-
-.zoom-status-legend {
-    display: flex;
-    gap: 16px;
-    padding: 12px 24px;
-    background: #f8fafc;
-    border-bottom: 1px solid #e5e7eb;
-    font-size: 13px;
-}
-.legend-dot {
-    display: inline-block;
-    width: 10px; height: 10px;
-    border-radius: 50%;
-    margin-right: 5px;
-}
-.legend-dot.kosong  { background: #10b981; }
-.legend-dot.dipakai { background: #f59e0b; }
-
-.zoom-link-list {
-    padding: 16px 24px 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.zoom-link-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 12px 16px;
-    border-radius: 10px;
-    border: 1.5px solid #e5e7eb;
-    transition: border-color 0.2s;
-    gap: 12px;
-}
-.zoom-link-item.kosong {
-    background: #f0fdf4;
-    border-color: #bbf7d0;
-}
-.zoom-link-item.dipakai {
-    background: #fffbeb;
-    border-color: #fde68a;
-}
-.zoom-link-item:hover.kosong  { border-color: #6ee7b7; }
-.zoom-link-item:hover.dipakai { border-color: #fcd34d; }
-
-.zoom-link-info {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex: 1;
-    min-width: 0;
-}
-.zoom-link-number {
-    width: 26px; height: 26px;
-    background: #e2e8f0;
-    color: #475569;
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 12px; font-weight: 700;
-    flex-shrink: 0;
-}
-.zoom-link-email {
-    font-size: 13px;
-    font-weight: 600;
-    color: #1e293b;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.zoom-kondisi-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    padding: 5px 12px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 700;
-    white-space: nowrap;
-    flex-shrink: 0;
-}
-.zoom-kondisi-badge.kosong {
-    background: #d1fae5;
-    color: #065f46;
-}
-.zoom-kondisi-badge.dipakai {
-    background: #fef3c7;
-    color: #92400e;
-}
-
-.zoom-summary-bar {
-    margin: 0 24px 16px;
-    padding: 10px 14px;
-    border-radius: 8px;
-    background: #f1f5f9;
-    font-size: 13px;
-    color: #475569;
-    display: flex;
-    gap: 20px;
-}
-.zoom-summary-bar span strong { color: #1e293b; }
 </style>
 
-<!-- ── ZOOM STATUS MODAL ──────────────────────────────────────── -->
-<div class="zoom-status-modal-overlay" id="zoomStatusModal" onclick="closeZoomModal(event)">
-    <div class="zoom-status-modal">
-        <div class="zoom-modal-header">
-            <h3>📋 Status Zoom Links</h3>
-            <button class="zoom-modal-close" onclick="closeZoomModal()">&times;</button>
-        </div>
+<?php
+// Pass data ke JS
+$all_bookings_json     = json_encode(array_map(function($r) {
+    return [
+        'zoom_link'      => $r['zoom_link'],
+        'kondisi'        => $r['kondisi'],
+        'unit'           => $r['unit'] ?? '',
+        'start_datetime' => $r['start_datetime'] ?? null,
+        'end_datetime'   => $r['end_datetime']   ?? null,
+        'booking_date'   => $r['booking_date']   ?? null,
+        'booking_time'   => $r['booking_time']   ?? null,
+        'keterangan'     => $r['keterangan']     ?? '',
+    ];
+}, $rows), JSON_UNESCAPED_UNICODE);
 
-        <div class="zoom-status-legend">
-            <span><span class="legend-dot kosong"></span> KOSONG = Tersedia</span>
-            <span><span class="legend-dot dipakai"></span> DIPAKAI = Sedang digunakan</span>
-        </div>
-
-        <?php
-        $total_kosong  = count(array_filter($zoom_status_map, fn($s) => $s === 'KOSONG'));
-        $total_dipakai = count($zoom_status_map) - $total_kosong;
-        ?>
-        <div class="zoom-summary-bar">
-            <span>🟢 Tersedia: <strong><?= $total_kosong ?></strong></span>
-            <span>🟡 Dipakai: <strong><?= $total_dipakai ?></strong></span>
-            <span>Total: <strong><?= count($zoom_status_map) ?></strong></span>
-        </div>
-
-        <div class="zoom-link-list">
-            <?php $i = 1; foreach ($zoom_status_map as $zl => $status): ?>
-                <?php $isKosong = $status === 'KOSONG'; ?>
-                <div class="zoom-link-item <?= $isKosong ? 'kosong' : 'dipakai' ?>">
-                    <div class="zoom-link-info">
-                        <span class="zoom-link-number"><?= $i++ ?></span>
-                        <span class="zoom-link-email" title="<?= h($zl) ?>"><?= h($zl) ?></span>
-                    </div>
-                    <span class="zoom-kondisi-badge <?= $isKosong ? 'kosong' : 'dipakai' ?>">
-                        <?= $isKosong ? '🟢 KOSONG' : '🟡 DIPAKAI' ?>
-                    </span>
-                </div>
-            <?php endforeach; ?>
-        </div>
-    </div>
-</div>
+// Zoom links aktif dari DB — ini sumber kebenaran tunggal
+$zoom_links_active_json = json_encode($zoom_links_active, JSON_UNESCAPED_UNICODE);
+?>
 
 <div class="card">
     <!-- HEADER -->
@@ -403,26 +281,7 @@
                 <?php endif; ?>
             </p>
         </div>
-        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
-            <!-- Button Status Zoom (kiri) -->
-            <button type="button" class="btn-zoom-status" onclick="openZoomModal()">
-                📋 Status Zoom
-                <?php if ($total_dipakai > 0): ?>
-                    <span style="
-                        background:#f59e0b;color:#fff;
-                        border-radius:20px;padding:1px 8px;
-                        font-size:11px;font-weight:700;
-                    "><?= $total_dipakai ?> dipakai</span>
-                <?php else: ?>
-                    <span style="
-                        background:#10b981;color:#fff;
-                        border-radius:20px;padding:1px 8px;
-                        font-size:11px;font-weight:700;
-                    ">semua kosong</span>
-                <?php endif; ?>
-            </button>
-
-            <!-- Button Booking Baru (kanan) -->
+        <div>
             <a class="btn btn-primary btn-sm" href="<?= base_url('pages/booking-zoom-form.php') ?>">
                 ➕ Booking Baru
             </a>
@@ -440,47 +299,53 @@
         <div class="alert alert-success" style="margin: 12px 25px 0;">✅ Booking berhasil dihapus.</div>
     <?php endif; ?>
 
-    <!-- FILTER BAR -->
+    <!-- ══════════════════════════════════════════════════════════
+         AVAILABILITY CHECKER
+    ══════════════════════════════════════════════════════════ -->
+    <div class="avail-section">
+        <h3>🔍 Cek Ketersediaan Zoom</h3>
+
+        <?php if (empty($zoom_links_active)): ?>
+            <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:14px 16px;font-size:13px;color:#991b1b;">
+                ⚠ Belum ada link Zoom aktif. Tambahkan di
+                <a href="<?= base_url('pages/master-zoom.php') ?>" style="color:#1d4ed8;font-weight:600;">Master Zoom</a>.
+            </div>
+        <?php else: ?>
+            <div class="avail-date-controls">
+                <button class="avail-shortcut active" id="btn-today"    onclick="setAvailDate('today')">Hari Ini</button>
+                <button class="avail-shortcut"        id="btn-tomorrow" onclick="setAvailDate('tomorrow')">Besok</button>
+                <button class="avail-shortcut"        id="btn-week"     onclick="setAvailDate('week')">Minggu Ini</button>
+                <input type="date" class="avail-date-input" id="avail-date-picker"
+                       value="<?= date('Y-m-d') ?>"
+                       onchange="setAvailDate('custom', this.value)">
+                <span style="font-size:12px;color:#94a3b8;">atau pilih tanggal →</span>
+            </div>
+
+            <div class="avail-legend">
+                <span><span class="legend-dot kosong"></span> Kosong / tersedia</span>
+                <span><span class="legend-dot dipakai"></span> Ada booking di tanggal ini</span>
+            </div>
+
+            <div class="avail-summary-bar" id="avail-summary-bar"></div>
+            <div class="zoom-avail-grid" id="avail-grid"></div>
+        <?php endif; ?>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════
+         FILTER BAR
+    ══════════════════════════════════════════════════════════ -->
     <form method="get" action="" id="filterForm">
         <div class="filter-bar">
+            <div style="font-size:13px;font-weight:700;color:#475569;margin-bottom:12px;">📋 Filter Tabel Riwayat Booking</div>
             <div class="filter-grid">
 
-                <!-- Filter Unit -->
                 <div class="filter-field">
                     <label>Unit</label>
                     <select name="filter_unit">
                         <option value="">Semua Unit</option>
                         <?php
-                        $ALL_UNITS = [
-                            'STI',
-                            'PERENCANAAN',
-                            'HUKUM',
-                            'FUNGSIONAL AHLI',
-                            'KKU',
-                            'NIAGA',
-                            'KEUANGAN',
-                            'DISTRIBUSI',
-                            'UP2K',
-                            'SDM',
-                            'YBM',
-                            'IKPLN',
-                            'UID Jawa Tengah & D.I. Yogyakarta',
-                            'UP3 Kudus',
-                            'UP3 Surakarta',
-                            'UP3 Yogyakarta',
-                            'UP3 Magelang',
-                            'UP3 Purwokerto',
-                            'UP3 Tegal',
-                            'UP3 Semarang',
-                            'UP3 Salatiga',
-                            'UP3 Klaten',
-                            'UP3 Pekalongan',
-                            'UP3 Cilacap',
-                            'UP3 Grobogan',
-                            'UP3 Sukoharjo',
-                            'UP2D Jateng & DIY'
-                        ];
-                        $unit_options = array_unique(array_merge($ALL_UNITS, $units_all));
+                        // Gabung unit dari DB booking + unit_all
+                        $unit_options = array_unique($units_all);
                         sort($unit_options);
                         foreach ($unit_options as $u): ?>
                             <option value="<?= h($u) ?>" <?= $filter_unit === $u ? 'selected' : '' ?>>
@@ -490,7 +355,6 @@
                     </select>
                 </div>
 
-                <!-- Filter Kondisi -->
                 <div class="filter-field">
                     <label>Kondisi</label>
                     <select name="filter_kondisi">
@@ -500,7 +364,6 @@
                     </select>
                 </div>
 
-                <!-- Filter Link Zoom -->
                 <div class="filter-field">
                     <label>Link Zoom</label>
                     <select name="filter_zoom">
@@ -513,26 +376,22 @@
                     </select>
                 </div>
 
-                <!-- Filter Dari Tanggal -->
                 <div class="filter-field">
                     <label>Dari Tanggal</label>
                     <input type="date" name="filter_from" value="<?= h($filter_from) ?>">
                 </div>
 
-                <!-- Filter Sampai Tanggal -->
                 <div class="filter-field">
                     <label>Sampai Tanggal</label>
                     <input type="date" name="filter_to" value="<?= h($filter_to) ?>">
                 </div>
 
-                <!-- Tombol aksi filter -->
                 <div class="filter-actions">
                     <button type="submit" class="btn-filter primary">🔍 Filter</button>
                     <?php if ($is_filtered): ?>
                         <a href="<?= base_url('pages/booking-zoom.php') ?>" class="btn-filter reset">✕ Reset</a>
                     <?php endif; ?>
                 </div>
-
             </div>
         </div>
     </form>
@@ -563,7 +422,6 @@
                         <tr>
                             <td><?= $no++ ?></td>
 
-                            <!-- Tanggal & Jam -->
                             <td>
                                 <?php
                                 $hasRange = !empty($r['start_datetime']) && !empty($r['end_datetime']);
@@ -572,8 +430,7 @@
                                     $end     = new DateTime($r['end_datetime']);
                                     $diff    = $start->diff($end);
                                     $sameDay = $start->format('Y-m-d') === $end->format('Y-m-d');
-
-                                    $durStr = '';
+                                    $durStr  = '';
                                     if ($diff->days > 0) {
                                         $durStr = $diff->days . ' hr ' . ($diff->h ? $diff->h . ' jam' : '');
                                     } elseif ($diff->h > 0 && $diff->i > 0) {
@@ -606,7 +463,6 @@
                                 <?php endif; ?>
                             </td>
 
-                            <!-- Unit -->
                             <td>
                                 <?php if (!empty($r['unit'])): ?>
                                     <span class="unit-badge"><?= h(strtoupper($r['unit'])) ?></span>
@@ -615,17 +471,14 @@
                                 <?php endif; ?>
                             </td>
 
-                            <!-- Link Zoom -->
                             <td>
                                 <span style="background:#dbeafe;color:#1e40af;padding:4px 10px;border-radius:6px;font-size:13px;font-weight:600;">
                                     <?= h($r['zoom_link']) ?>
                                 </span>
                             </td>
 
-                            <!-- Keterangan -->
                             <td><?= h($r['keterangan'] ?: '-') ?></td>
 
-                            <!-- Kondisi -->
                             <td>
                                 <form method="post" action="<?= base_url('pages/booking-zoom.php') ?>" style="margin:0;">
                                     <input type="hidden" name="action"     value="update_kondisi">
@@ -641,10 +494,8 @@
                                 </form>
                             </td>
 
-                            <!-- Dibuat Oleh -->
                             <td><?= h($r['booked_by_name'] ?? '-') ?></td>
 
-                            <!-- Dibuat Pada -->
                             <td>
                                 <?php if (!empty($r['created_at'])): ?>
                                     <?= date('d M Y H:i', strtotime($r['created_at'])) ?>
@@ -652,7 +503,6 @@
                                 <?php endif; ?>
                             </td>
 
-                            <!-- Aksi -->
                             <td>
                                 <form method="post" action="<?= base_url('pages/booking-zoom.php') ?>" style="margin:0;" onsubmit="return confirm('Yakin hapus booking ini?')">
                                     <input type="hidden" name="action"     value="delete_booking">
@@ -669,19 +519,162 @@
 </div>
 
 <script>
-function openZoomModal() {
-    document.getElementById('zoomStatusModal').classList.add('show');
-    document.body.style.overflow = 'hidden';
+/* ══════════════════════════════════════════════════════════════
+   DATA — dari PHP (sumber kebenaran: tabel zoom_links di DB)
+══════════════════════════════════════════════════════════════ */
+const ALL_BOOKINGS   = <?= $all_bookings_json ?>;
+const ALL_ZOOM_LINKS = <?= $zoom_links_active_json ?>;
+
+/* ── Helpers ──────────────────────────────────────────────── */
+function zoomLabel(email) {
+    const m = email.match(/(\d+)@/);
+    if (!m) {
+        // Untuk email tanpa angka, ambil bagian sebelum @
+        return email.split('@')[0];
+    }
+    return 'PLN ' + String(parseInt(m[1], 10)).padStart(3, '0');
 }
 
-function closeZoomModal(e) {
-    if (!e || e.target === document.getElementById('zoomStatusModal') || e.currentTarget.tagName === 'BUTTON') {
-        document.getElementById('zoomStatusModal').classList.remove('show');
-        document.body.style.overflow = '';
+function fmtTime(dt) {
+    if (!dt) return '';
+    const d = new Date(dt);
+    return String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+}
+
+function fmtDate(dt) {
+    if (!dt) return '';
+    const d = new Date(dt);
+    const months = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+    return d.getDate() + ' ' + months[d.getMonth()];
+}
+
+function bookingOverlapsRange(booking, fromStr, toStr) {
+    if (booking.start_datetime && booking.end_datetime) {
+        const start      = new Date(booking.start_datetime);
+        const end        = new Date(booking.end_datetime);
+        const rangeStart = new Date(fromStr + 'T00:00:00');
+        const rangeEnd   = new Date(toStr   + 'T23:59:59');
+        return start <= rangeEnd && end >= rangeStart;
+    }
+    if (booking.booking_date) {
+        return booking.booking_date >= fromStr && booking.booking_date <= toStr;
+    }
+    return false;
+}
+
+/* ── State ────────────────────────────────────────────────── */
+let currentMode = 'today';
+let currentDate = '<?= date('Y-m-d') ?>';
+
+function setAvailDate(mode, customDate) {
+    currentMode = mode;
+    const today    = new Date();
+    const tomorrow = new Date(today);
+    tomorrow.setDate(today.getDate() + 1);
+
+    ['btn-today','btn-tomorrow','btn-week'].forEach(function(id) {
+        const el = document.getElementById(id);
+        if (el) el.classList.remove('active');
+    });
+
+    if (mode === 'today') {
+        currentDate = today.toISOString().slice(0,10);
+        document.getElementById('btn-today').classList.add('active');
+        document.getElementById('avail-date-picker').value = currentDate;
+    } else if (mode === 'tomorrow') {
+        currentDate = tomorrow.toISOString().slice(0,10);
+        document.getElementById('btn-tomorrow').classList.add('active');
+        document.getElementById('avail-date-picker').value = currentDate;
+    } else if (mode === 'week') {
+        document.getElementById('btn-week').classList.add('active');
+    } else if (mode === 'custom') {
+        currentDate = customDate;
+    }
+
+    renderAvailability();
+}
+
+function renderAvailability() {
+    const grid    = document.getElementById('avail-grid');
+    const summary = document.getElementById('avail-summary-bar');
+    if (!grid) return;
+
+    /* Tentukan range tanggal */
+    let fromDate, toDate;
+    if (currentMode === 'week') {
+        const today = new Date();
+        const day   = today.getDay();
+        const monday = new Date(today);
+        monday.setDate(today.getDate() - (day === 0 ? 6 : day - 1));
+        const sunday = new Date(monday);
+        sunday.setDate(monday.getDate() + 6);
+        fromDate = monday.toISOString().slice(0,10);
+        toDate   = sunday.toISOString().slice(0,10);
+    } else {
+        fromDate = currentDate;
+        toDate   = currentDate;
+    }
+
+    let kosongCount = 0, dipakaiCount = 0;
+
+    const cards = ALL_ZOOM_LINKS.map(function(zoomEmail) {
+        const bookings = ALL_BOOKINGS.filter(function(b) {
+            return b.zoom_link === zoomEmail &&
+                   bookingOverlapsRange(b, fromDate, toDate);
+        });
+
+        const hasBooking = bookings.length > 0;
+        if (hasBooking) dipakaiCount++; else kosongCount++;
+
+        let infoHtml = '';
+        if (hasBooking) {
+            infoHtml = bookings.map(function(b) {
+                let timeStr = '';
+                if (b.start_datetime && b.end_datetime) {
+                    const sameDay = b.start_datetime.slice(0,10) === b.end_datetime.slice(0,10);
+                    if (currentMode === 'week' && !sameDay) {
+                        timeStr = fmtDate(b.start_datetime) + ' ' + fmtTime(b.start_datetime) +
+                                  ' → ' + fmtDate(b.end_datetime) + ' ' + fmtTime(b.end_datetime);
+                    } else {
+                        timeStr = fmtDate(b.start_datetime) + ' ' + fmtTime(b.start_datetime) +
+                                  ' – ' + fmtTime(b.end_datetime);
+                    }
+                } else if (b.booking_time) {
+                    timeStr = (b.booking_date || '') + ' ' + b.booking_time;
+                }
+                const unit = b.unit ? '<strong>' + b.unit + '</strong> · ' : '';
+                const ket  = b.keterangan ? ' <span style="color:#94a3b8;">(' + b.keterangan + ')</span>' : '';
+                return '<div class="booking-row">' + unit + timeStr + ket + '</div>';
+            }).join('');
+        } else {
+            infoHtml = '<span style="color:#10b981;font-size:11px;font-weight:600;">Tidak ada booking</span>';
+        }
+
+        const label = zoomLabel(zoomEmail);
+        return '<div class="zoom-avail-card ' + (hasBooking ? 'dipakai' : 'kosong') + '">' +
+               '<div class="card-zoom-name" title="' + zoomEmail + '">' + label + '</div>' +
+               '<div class="card-zoom-email" title="' + zoomEmail + '">' + zoomEmail + '</div>' +
+               '<div class="card-status">' + (hasBooking ? '🟡 Dipakai' : '🟢 Kosong') + '</div>' +
+               '<div class="card-booking-info">' + infoHtml + '</div>' +
+               '</div>';
+    });
+
+    grid.innerHTML = cards.length ? cards.join('') : '<div class="avail-empty">Tidak ada link Zoom aktif.</div>';
+
+    /* Summary bar */
+    let rangeLabel = '';
+    if (currentMode === 'today')         rangeLabel = 'Hari ini';
+    else if (currentMode === 'tomorrow') rangeLabel = 'Besok';
+    else if (currentMode === 'week')     rangeLabel = 'Minggu ini';
+    else                                 rangeLabel = currentDate;
+
+    if (summary) {
+        summary.innerHTML =
+            '<span class="avail-summary-pill kosong">🟢 ' + kosongCount + ' zoom kosong</span>' +
+            '<span class="avail-summary-pill dipakai">🟡 ' + dipakaiCount + ' zoom ada booking</span>' +
+            '<span style="font-size:12px;color:#94a3b8;align-self:center;">— ' + rangeLabel + '</span>';
     }
 }
 
-document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape') closeZoomModal();
-});
+document.addEventListener('DOMContentLoaded', renderAvailability);
 </script>

@@ -15,28 +15,10 @@ require_permission('booking-zoom');
 
 $pdo = db();
 
+// Auto-release booking yang sudah lewat end_datetime
+auto_release_zoom_bookings($pdo);
+
 $KONDISI_OPTIONS = ['KOSONG', 'DIPAKAI'];
-
-// Semua zoom links yang tersedia (sama persis dengan booking-zoom-form.php)
-// SESUDAH (dari DB):
-$ALL_ZOOM_LINKS = $pdo->query(
-    "SELECT email FROM zoom_links WHERE is_active = 1 ORDER BY sort_order ASC, id ASC"
-)->fetchAll(PDO::FETCH_COLUMN);
-
-// Fallback jika tabel kosong
-if (empty($ALL_ZOOM_LINKS)) {
-    $ALL_ZOOM_LINKS = [
-        'zoomplnuidjty001@gmail.com',
-        'zoomplnuidjty002@gmail.com',
-        'zoomplnuidjty003@gmail.com',
-        'zoomplnuidjty004@gmail.com',
-        'zoomplnuidjty005@gmail.com',
-        'zoomplnuidjty0066@gmail.com',
-        'zoomplnuidjty007@gmail.com',
-        'zoomplnuidjty008@gmail.com',
-        'zoomplnuidjty009@gmail.com',
-    ];
-}
 
 // Handle POST - Update Kondisi
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'update_kondisi') {
@@ -76,12 +58,12 @@ $where  = [];
 $params = [];
 
 if ($filter_unit !== '') {
-    $where[]           = "zb.unit = :unit";
-    $params[':unit']   = $filter_unit;
+    $where[]         = "zb.unit = :unit";
+    $params[':unit'] = $filter_unit;
 }
 if ($filter_kondisi !== '') {
-    $where[]              = "zb.kondisi = :kondisi";
-    $params[':kondisi']   = $filter_kondisi;
+    $where[]             = "zb.kondisi = :kondisi";
+    $params[':kondisi']  = $filter_kondisi;
 }
 if ($filter_zoom !== '') {
     $where[]              = "zb.zoom_link = :zoom_link";
@@ -110,31 +92,21 @@ $stmt = $pdo->prepare("
 $stmt->execute($params);
 $rows = $stmt->fetchAll();
 
-// Untuk dropdown filter — ambil distinct values yang sudah ada di DB
+// ── ZOOM LINKS dari DB (untuk filter dropdown & availability checker) ─────────
 $zoom_links_all = $pdo->query(
     "SELECT DISTINCT zoom_link FROM zoom_bookings WHERE zoom_link IS NOT NULL ORDER BY zoom_link"
 )->fetchAll(PDO::FETCH_COLUMN);
 
+$zoom_links_active = $pdo->query(
+    "SELECT email FROM zoom_links WHERE is_active = 1 ORDER BY sort_order ASC, id ASC"
+)->fetchAll(PDO::FETCH_COLUMN);
+
+// ── UNIT dari DB (untuk filter dropdown) ─────────────────────────────────────
 $units_all = $pdo->query(
     "SELECT DISTINCT unit FROM zoom_bookings WHERE unit IS NOT NULL AND unit != '' ORDER BY unit"
 )->fetchAll(PDO::FETCH_COLUMN);
 
 $is_filtered = ($filter_unit || $filter_kondisi || $filter_zoom || $filter_from || $filter_to);
-
-// ── STATUS SEMUA ZOOM LINKS ───────────────────────────────────────────────────
-// Ambil zoom link yang sedang DIPAKAI
-$stmt_busy = $pdo->query("
-    SELECT DISTINCT zoom_link
-    FROM zoom_bookings
-    WHERE kondisi = 'DIPAKAI' AND zoom_link IS NOT NULL
-");
-$busy_zoom_links = $stmt_busy->fetchAll(PDO::FETCH_COLUMN);
-
-// Bangun array status per zoom link
-$zoom_status_map = [];
-foreach ($ALL_ZOOM_LINKS as $zl) {
-    $zoom_status_map[$zl] = in_array($zl, $busy_zoom_links, true) ? 'DIPAKAI' : 'KOSONG';
-}
 
 $page_title   = "Booking Jadwal Zoom";
 $active_menu  = "booking-zoom";
