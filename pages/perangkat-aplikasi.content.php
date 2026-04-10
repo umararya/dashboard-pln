@@ -90,6 +90,25 @@
     font-size: 11px; font-weight: 700;
     background: #ede9fe; color: #6d28d9; white-space: nowrap;
 }
+
+/* ── Export button ──────────────────────────────────── */
+.btn-export {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    background: #16a34a;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.2s;
+    white-space: nowrap;
+}
+.btn-export:hover { background: #15803d; }
 </style>
 
 <?php
@@ -106,14 +125,19 @@ function patch_badge_class(string $val): string {
 
 <div class="card">
     <!-- HEADER -->
-    <div class="card-header" style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
+    <div class="card-header" style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
         <div>
             <h2>🖥️ Perangkat Aplikasi</h2>
             <p>Total: <strong><?= $total_count ?></strong> perangkat | Halaman <?= $page ?> dari <?= max(1,$total_pages) ?></p>
         </div>
-        <a class="btn btn-primary btn-sm" href="<?= base_url('pages/perangkat-aplikasi-input.php') ?>">
-            ➕ Input Data
-        </a>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+            <a class="btn-export" href="<?= base_url('pages/export-perangkat-aplikasi.php') ?>" title="Export ke Excel">
+                📥 Export Excel
+            </a>
+            <a class="btn btn-primary btn-sm" href="<?= base_url('pages/perangkat-aplikasi-input.php') ?>">
+                ➕ Input Data
+            </a>
+        </div>
     </div>
 
     <?php if ($success): ?>
