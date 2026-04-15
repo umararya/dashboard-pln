@@ -81,18 +81,26 @@
     margin-left: 10px;
 }
 
-/* ── Table ──────────────────────────────────────────────────── */
-.kondisi-select {
-    padding: 6px 10px;
-    border: 1px solid #d1d5db;
-    border-radius: 8px;
-    font-size: 13px;
-    font-weight: 600;
+/* ── Kondisi dot ─────────────────────────────────────────────── */
+.kondisi-dot-form { display: flex; justify-content: center; align-items: center; }
+.kondisi-dot-btn {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: none;
     cursor: pointer;
+    display: block;
+    transition: transform 0.15s, box-shadow 0.15s;
+    flex-shrink: 0;
 }
-.kondisi-select.kosong  { background: #d1fae5; color: #065f46; border-color: #10b981; }
-.kondisi-select.dipakai { background: #fef3c7; color: #92400e; border-color: #f59e0b; }
+.kondisi-dot-btn:hover {
+    transform: scale(1.25);
+    box-shadow: 0 0 0 3px rgba(0,0,0,0.12);
+}
+.kondisi-dot-btn.kosong  { background: #22c55e; }
+.kondisi-dot-btn.dipakai { background: #f59e0b; }
 
+/* ── Table ──────────────────────────────────────────────────── */
 .unit-badge {
     display: inline-block;
     padding: 3px 10px;
@@ -177,9 +185,7 @@
         <div class="alert alert-success" style="margin: 12px 25px 0;">✅ Booking berhasil dihapus.</div>
     <?php endif; ?>
 
-    <!-- ══════════════════════════════════════════════════════════
-         FILTER BAR
-    ══════════════════════════════════════════════════════════ -->
+    <!-- FILTER BAR -->
     <form method="get" action="" id="filterForm">
         <div class="filter-bar">
             <div style="font-size:13px;font-weight:700;color:#475569;margin-bottom:12px;">📋 Filter Tabel Riwayat Booking</div>
@@ -256,7 +262,7 @@
                         <th>Unit</th>
                         <th>Link Zoom</th>
                         <th>Keterangan</th>
-                        <th>Kondisi</th>
+                        <th style="width:60px;text-align:center;">Kondisi</th>
                         <th>Dibuat Oleh</th>
                         <th>Dibuat Pada</th>
                         <th style="width:120px;">Aksi</th>
@@ -322,20 +328,22 @@
                                 </span>
                             </td>
 
-                            <td><?= h($r['keterangan'] ?: '-') ?></td>
+                            <td style="max-width:180px;word-break:break-word;font-size:13px;color:#475569;">
+                                <?= h($r['keterangan'] ?: '—') ?>
+                            </td>
 
-                            <td>
-                                <form method="post" action="<?= base_url('pages/booking-zoom.php') ?>" style="margin:0;">
+                            <!-- Kondisi: hanya bulatan berwarna, klik untuk toggle -->
+                            <td style="text-align:center;vertical-align:middle;">
+                                <form method="post" action="<?= base_url('pages/booking-zoom.php') ?>" style="margin:0;" class="kondisi-dot-form">
                                     <input type="hidden" name="action"     value="update_kondisi">
                                     <input type="hidden" name="booking_id" value="<?= $r['id'] ?>">
-                                    <select
-                                        name="kondisi"
-                                        class="kondisi-select <?= strtolower($r['kondisi']) ?>"
-                                        onchange="this.form.submit()"
-                                    >
-                                        <option value="KOSONG"  <?= $r['kondisi'] === 'KOSONG'  ? 'selected' : '' ?>>🟢 KOSONG</option>
-                                        <option value="DIPAKAI" <?= $r['kondisi'] === 'DIPAKAI' ? 'selected' : '' ?>>🟡 DIPAKAI</option>
-                                    </select>
+                                    <input type="hidden" name="kondisi"    value="<?= $r['kondisi'] === 'KOSONG' ? 'DIPAKAI' : 'KOSONG' ?>">
+                                    <button
+                                        type="submit"
+                                        class="kondisi-dot-btn <?= strtolower($r['kondisi']) ?>"
+                                        title="<?= $r['kondisi'] === 'KOSONG' ? '🟢 KOSONG — klik untuk ubah ke DIPAKAI' : '🟡 DIPAKAI — klik untuk ubah ke KOSONG' ?>"
+                                        onclick="return confirm('Ubah kondisi menjadi <?= $r['kondisi'] === 'KOSONG' ? 'DIPAKAI' : 'KOSONG' ?>?')"
+                                    ></button>
                                 </form>
                             </td>
 
