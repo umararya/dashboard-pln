@@ -3,26 +3,73 @@
 ?>
 
 <style>
+/* ── Filter Bar ─────────────────────────────────────── */
+.pa-filter-bar {
+    padding: 16px 25px;
+    background: #f8fafc;
+    border-bottom: 1px solid #e5e7eb;
+}
+.pa-filter-title {
+    font-size: 12px; font-weight: 700; color: #64748b;
+    text-transform: uppercase; letter-spacing: 0.4px;
+    margin-bottom: 10px;
+}
+.pa-filter-row {
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+    flex-wrap: wrap;
+}
+.pa-filter-field { display: flex; flex-direction: column; gap: 5px; }
+.pa-filter-field label {
+    font-size: 11px; font-weight: 700; color: #64748b;
+    text-transform: uppercase; letter-spacing: 0.4px;
+}
+.pa-filter-field select {
+    min-width: 220px;
+    padding: 9px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 13px;
+    background: #fff;
+    outline: none;
+    transition: border-color 0.2s;
+    cursor: pointer;
+}
+.pa-filter-field select:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,.1); }
+.btn-filter-apply {
+    padding: 9px 18px; background: #3b82f6; color: #fff;
+    border: none; border-radius: 8px; font-size: 13px; font-weight: 600;
+    cursor: pointer; white-space: nowrap; transition: background .2s;
+}
+.btn-filter-apply:hover { background: #2563eb; }
+.btn-filter-reset {
+    padding: 9px 14px; background: #f1f5f9; color: #475569;
+    border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; font-weight: 600;
+    cursor: pointer; text-decoration: none; display: inline-flex; align-items: center;
+    white-space: nowrap; transition: background .2s;
+}
+.btn-filter-reset:hover { background: #e2e8f0; }
+.filter-active-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: #dbeafe; color: #1d4ed8; border-radius: 20px;
+    padding: 3px 12px; font-size: 12px; font-weight: 700; margin-left: 8px;
+}
+
 /* ── Search Box ─────────────────────────────────────── */
 .search-wrapper {
-    position: relative;
-    margin-bottom: 15px;
+    position: relative; margin-bottom: 15px;
 }
 .search-wrapper .search-icon {
-    position: absolute;
-    left: 13px; top: 50%;
+    position: absolute; left: 13px; top: 50%;
     transform: translateY(-50%);
     font-size: 15px; color: #94a3b8; pointer-events: none;
 }
 #paSearch {
-    width: 100%;
-    padding: 10px 42px 10px 40px;
-    border: 1.5px solid #e2e8f0;
-    border-radius: 8px;
-    font-size: 13px; color: #334155;
-    background: #f8fafc; outline: none;
-    transition: border-color .2s, box-shadow .2s;
-    box-sizing: border-box;
+    width: 100%; padding: 10px 42px 10px 40px;
+    border: 1.5px solid #e2e8f0; border-radius: 8px;
+    font-size: 13px; color: #334155; background: #f8fafc; outline: none;
+    transition: border-color .2s, box-shadow .2s; box-sizing: border-box;
 }
 #paSearch:focus {
     border-color: #3b82f6; background: #fff;
@@ -33,13 +80,12 @@
     position: absolute; right: 11px; top: 50%;
     transform: translateY(-50%);
     background: none; border: none; cursor: pointer;
-    font-size: 16px; color: #94a3b8; display: none;
-    padding: 0 4px; line-height: 1;
+    font-size: 16px; color: #94a3b8; display: none; padding: 0 4px; line-height: 1;
 }
 .search-clear-btn:hover { color: #475569; }
 .search-no-result {
-    display: none; text-align: center;
-    padding: 40px 20px; color: #94a3b8; font-size: 14px;
+    display: none; text-align: center; padding: 40px 20px;
+    color: #94a3b8; font-size: 14px;
 }
 
 /* ── Patch Status Badges ────────────────────────────── */
@@ -53,7 +99,7 @@
 .patch-na       { background: #f1f5f9; color: #64748b; border: 1px solid #cbd5e1; }
 .patch-pending  { background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; }
 
-/* ── Table wrapper ──────────────────────────────────── */
+/* ── Table ──────────────────────────────────────────── */
 .table-wrapper { overflow-x: auto; border-radius: 10px; border: 1px solid #e5e7eb; }
 .data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
 .data-table thead th {
@@ -62,8 +108,7 @@
     border-bottom: 2px solid #e5e7eb; white-space: nowrap;
 }
 .data-table tbody td {
-    padding: 10px 14px; border-bottom: 1px solid #e5e7eb;
-    vertical-align: middle;
+    padding: 10px 14px; border-bottom: 1px solid #e5e7eb; vertical-align: middle;
 }
 .data-table tbody tr:hover { background: #f8fafc; }
 
@@ -90,29 +135,16 @@
     font-size: 11px; font-weight: 700;
     background: #ede9fe; color: #6d28d9; white-space: nowrap;
 }
-
-/* ── Export button ──────────────────────────────────── */
 .btn-export {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 14px;
-    background: #16a34a;
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    text-decoration: none;
-    transition: background 0.2s;
-    white-space: nowrap;
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 14px; background: #16a34a; color: #fff;
+    border: none; border-radius: 8px; font-size: 13px; font-weight: 600;
+    cursor: pointer; text-decoration: none; transition: background 0.2s; white-space: nowrap;
 }
 .btn-export:hover { background: #15803d; }
 </style>
 
 <?php
-// Helper: map patch value → badge class
 function patch_badge_class(string $val): string {
     return match($val) {
         '✅'  => 'patch-ok',
@@ -121,17 +153,33 @@ function patch_badge_class(string $val): string {
         default => 'patch-pending',
     };
 }
+
+// Build pagination URL helper (preserve filter params)
+function pa_page_url(int $p): string {
+    global $filter_jenis, $filter_msb;
+    $q = http_build_query(array_filter([
+        'filter_jenis' => $filter_jenis,
+        'filter_msb'   => $filter_msb,
+        'page'         => $p,
+    ]));
+    return base_url('pages/perangkat-aplikasi.php') . ($q ? '?' . $q : '');
+}
 ?>
 
 <div class="card">
     <!-- HEADER -->
     <div class="card-header" style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
         <div>
-            <h2>🖥️ Perangkat Aplikasi</h2>
-            <p>Total: <strong><?= $total_count ?></strong> perangkat | Halaman <?= $page ?> dari <?= max(1,$total_pages) ?></p>
+            <h2>🗂️ Perangkat Aplikasi</h2>
+            <p>
+                Total: <strong><?= $total_count ?></strong> perangkat | Halaman <?= $page ?> dari <?= max(1,$total_pages) ?>
+                <?php if ($is_filtered): ?>
+                    <span class="filter-active-badge">🔍 Filter aktif</span>
+                <?php endif; ?>
+            </p>
         </div>
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-            <a class="btn-export" href="<?= base_url('pages/export-perangkat-aplikasi.php') ?>" title="Export ke Excel">
+            <a class="btn-export" href="<?= base_url('pages/export-perangkat-aplikasi.php') ?>">
                 📥 Export Excel
             </a>
             <a class="btn btn-primary btn-sm" href="<?= base_url('pages/perangkat-aplikasi-input.php') ?>">
@@ -144,12 +192,53 @@ function patch_badge_class(string $val): string {
         <div class="alert alert-success" style="margin:15px 25px 0;">✅ <?= h($success) ?></div>
     <?php endif; ?>
 
+    <!-- FILTER BAR -->
+    <form method="get" action="">
+        <div class="pa-filter-bar">
+            <div class="pa-filter-title">🔍 Filter Data</div>
+            <div class="pa-filter-row">
+                <div class="pa-filter-field">
+                    <label>Jenis Perangkat</label>
+                    <select name="filter_jenis">
+                        <option value="">— Semua Jenis —</option>
+                        <?php foreach ($jenis_options as $opt): ?>
+                            <option value="<?= h($opt) ?>" <?= $filter_jenis === $opt ? 'selected' : '' ?>>
+                                <?= h($opt) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+
+                <div class="pa-filter-field">
+                    <label>MSB / Sub Bidang</label>
+                    <select name="filter_msb">
+                        <option value="">— Semua MSB —</option>
+                        <?php foreach ($msb_options as $opt): ?>
+                            <option value="<?= h($opt) ?>" <?= $filter_msb === $opt ? 'selected' : '' ?>>
+                                <?= h($opt) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn-filter-apply">🔍 Filter</button>
+                <?php if ($is_filtered): ?>
+                    <a href="<?= base_url('pages/perangkat-aplikasi.php') ?>" class="btn-filter-reset">✕ Reset</a>
+                <?php endif; ?>
+            </div>
+        </div>
+    </form>
+
     <div style="padding:25px;">
 
-        <?php if (empty($rows) && $page === 1): ?>
+        <?php if (empty($rows) && $page === 1 && !$is_filtered): ?>
             <p style="text-align:center;padding:60px 20px;color:#94a3b8;font-size:15px;">
-                🖥️ Belum ada data perangkat aplikasi.<br>
+                🗂️ Belum ada data perangkat aplikasi.<br>
                 <span style="font-size:13px;">Klik tombol <strong>"Input Data"</strong> untuk menambahkan.</span>
+            </p>
+        <?php elseif (empty($rows)): ?>
+            <p style="text-align:center;padding:40px 20px;color:#94a3b8;font-size:14px;">
+                😕 Tidak ada data yang sesuai filter.
             </p>
         <?php else: ?>
 
@@ -157,7 +246,7 @@ function patch_badge_class(string $val): string {
             <div class="search-wrapper">
                 <span class="search-icon">🔍</span>
                 <input type="text" id="paSearch"
-                    placeholder="Cari... (Nama, URL, IP, Brand, Lokasi, Bidang, MSB, Pemilik)"
+                    placeholder="Cari... (Jenis Perangkat, URL, IP, Lokasi, Bidang, MSB, Pemilik)"
                     autocomplete="off">
                 <button class="search-clear-btn" id="paClearBtn" title="Hapus pencarian">✕</button>
             </div>
@@ -171,18 +260,14 @@ function patch_badge_class(string $val): string {
                     <thead>
                         <tr>
                             <th style="width:48px;">No</th>
-                            <th>Nama Perangkat</th>
+                            <th>Jenis Perangkat</th>
                             <th>URL</th>
                             <th>IP</th>
-                            <th>Brand</th>
-                            <th>Type</th>
-                            <th>Server</th>
-                            <th>OS</th>
                             <th>Lokasi</th>
                             <th>Bidang</th>
                             <th>MSB / Sub Bidang</th>
-                            <th style="width:90px;">Firmware</th>
-                            <th style="width:90px;">Network</th>
+                            <th style="width:110px;">Firmware Patch</th>
+                            <th style="width:120px;">Network Device Patch</th>
                             <th>Pemilik Aset</th>
                             <th style="width:56px;">Oleh</th>
                             <th style="width:130px;">Aksi</th>
@@ -192,7 +277,7 @@ function patch_badge_class(string $val): string {
                         <?php $no = $offset + 1; foreach ($rows as $r): ?>
                             <tr>
                                 <td><?= $no++ ?></td>
-                                <td><strong><?= h($r['nama_perangkat']) ?></strong></td>
+                                <td><strong><?= h($r['jenis_perangkat']) ?></strong></td>
                                 <td>
                                     <?php if (!empty($r['url'])): ?>
                                         <a href="<?= h($r['url']) ?>" target="_blank"
@@ -212,10 +297,6 @@ function patch_badge_class(string $val): string {
                                         <span style="color:#cbd5e1;">—</span>
                                     <?php endif; ?>
                                 </td>
-                                <td><?= h($r['brand'] ?: '—') ?></td>
-                                <td><?= h($r['type'] ?: '—') ?></td>
-                                <td><?= h($r['server'] ?: '—') ?></td>
-                                <td><?= h($r['os'] ?: '—') ?></td>
                                 <td>
                                     <?php if (!empty($r['lokasi'])): ?>
                                         <span class="badge-lokasi"><?= h($r['lokasi']) ?></span>
@@ -227,13 +308,11 @@ function patch_badge_class(string $val): string {
                                     <?php else: ?>—<?php endif; ?>
                                 </td>
                                 <td><?= h($r['msb_sub_bidang'] ?: '—') ?></td>
-                                <!-- Firmware Patch -->
                                 <td>
                                     <span class="patch-badge <?= patch_badge_class($r['firmware_patch'] ?? '⌛') ?>">
                                         <?= h($r['firmware_patch'] ?? '⌛') ?>
                                     </span>
                                 </td>
-                                <!-- Network Device Patch -->
                                 <td>
                                     <span class="patch-badge <?= patch_badge_class($r['network_device_patch'] ?? '⌛') ?>">
                                         <?= h($r['network_device_patch'] ?? '⌛') ?>
@@ -247,7 +326,6 @@ function patch_badge_class(string $val): string {
                                     <div class="btn-group">
                                         <a href="<?= base_url('pages/perangkat-aplikasi-edit.php?id=' . $r['id']) ?>"
                                            class="btn btn-sm btn-edit">✏️ Edit</a>
-
                                         <?php if (is_admin()): ?>
                                             <form method="post" style="display:inline;margin:0;"
                                                   onsubmit="return confirm('Yakin hapus data ini?')">
@@ -268,19 +346,19 @@ function patch_badge_class(string $val): string {
             <?php if ($total_pages > 1): ?>
                 <div class="pagination">
                     <?php if ($page > 1): ?>
-                        <a href="?page=1">«« First</a>
-                        <a href="?page=<?= $page - 1 ?>">‹ Prev</a>
+                        <a href="<?= pa_page_url(1) ?>">«« First</a>
+                        <a href="<?= pa_page_url($page - 1) ?>">‹ Prev</a>
                     <?php endif; ?>
                     <?php for ($i = max(1,$page-2); $i <= min($total_pages,$page+2); $i++): ?>
                         <?php if ($i === $page): ?>
                             <span class="active"><?= $i ?></span>
                         <?php else: ?>
-                            <a href="?page=<?= $i ?>"><?= $i ?></a>
+                            <a href="<?= pa_page_url($i) ?>"><?= $i ?></a>
                         <?php endif; ?>
                     <?php endfor; ?>
                     <?php if ($page < $total_pages): ?>
-                        <a href="?page=<?= $page + 1 ?>">Next ›</a>
-                        <a href="?page=<?= $total_pages ?>">Last »»</a>
+                        <a href="<?= pa_page_url($page + 1) ?>">Next ›</a>
+                        <a href="<?= pa_page_url($total_pages) ?>">Last »»</a>
                     <?php endif; ?>
                 </div>
             <?php endif; ?>
@@ -295,8 +373,8 @@ function patch_badge_class(string $val): string {
     const clearBtn = document.getElementById('paClearBtn');
     const noResult = document.getElementById('paNoResult');
     const kwEl     = document.getElementById('paKeyword');
-    // Cols: 1=Nama, 2=URL, 3=IP, 4=Brand, 5=Type, 6=Server, 7=OS, 8=Lokasi, 9=Bidang, 10=MSB, 13=Pemilik
-    const COLS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 13];
+    // Cols: 1=Jenis, 2=URL, 3=IP, 4=Lokasi, 5=Bidang, 6=MSB, 9=Pemilik
+    const COLS = [1, 2, 3, 4, 5, 6, 9];
 
     if (!input) return;
 

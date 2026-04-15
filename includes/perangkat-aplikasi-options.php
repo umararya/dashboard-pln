@@ -1,7 +1,6 @@
 <?php
 /**
  * Shared dropdown options for Perangkat Aplikasi
- * — Mengambil dari DB (master tables), fallback ke array statis jika tabel belum ada
  * Path: includes/perangkat-aplikasi-options.php
  */
 
@@ -17,8 +16,8 @@ function _pa_load_options(string $table, array $fallback): array {
     }
 }
 
-// ── Fallback (dipakai jika tabel DB belum dibuat / kosong) ──────
-$_PA_FALLBACK_NAMA = [
+// ── Fallback ─────────────────────────────────────────────────────
+$_PA_FALLBACK_JENIS = [
     'Aplikasi Web', 'Aplikasi Mobile', 'Sistem Informasi Manajemen',
     'ERP', 'CRM', 'SCADA', 'DMS (Distribution Management System)',
     'HIS (Hospital Information System)', 'HRMS', 'e-Office',
@@ -54,14 +53,14 @@ $_PA_FALLBACK_MSB = [
     'Perencanaan & Investasi', 'K3 & Lingkungan', 'Pengadaan & Logistik',
 ];
 
-// ── Load dari DB ────────────────────────────────────────────────
-$NAMA_PERANGKAT_OPTIONS = _pa_load_options('master_pa_nama_perangkat', $_PA_FALLBACK_NAMA);
-$BRAND_OPTIONS          = _pa_load_options('master_pa_brand',          $_PA_FALLBACK_BRAND);
-$LOKASI_OPTIONS         = _pa_load_options('master_pa_lokasi',         $_PA_FALLBACK_LOKASI);
-$BIDANG_OPTIONS         = _pa_load_options('master_pa_bidang',         $_PA_FALLBACK_BIDANG);
-$MSB_OPTIONS            = _pa_load_options('master_pa_msb',            $_PA_FALLBACK_MSB);
+// ── Load dari DB ─────────────────────────────────────────────────
+$JENIS_PERANGKAT_OPTIONS = _pa_load_options('master_pa_jenis_perangkat', $_PA_FALLBACK_JENIS);
+$BRAND_OPTIONS           = _pa_load_options('master_pa_brand',           $_PA_FALLBACK_BRAND);
+$LOKASI_OPTIONS          = _pa_load_options('master_pa_lokasi',          $_PA_FALLBACK_LOKASI);
+$BIDANG_OPTIONS          = _pa_load_options('master_pa_bidang',          $_PA_FALLBACK_BIDANG);
+$MSB_OPTIONS             = _pa_load_options('master_pa_msb',             $_PA_FALLBACK_MSB);
 
-// ── Status patch (tetap hardcode, tidak masuk master DB) ────────
+// ── Status patch ─────────────────────────────────────────────────
 $PATCH_OPTIONS = [
     '✅' => '✅  Up-to-date',
     '❌' => '❌  Belum Up-to-date',

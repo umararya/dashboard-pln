@@ -6,14 +6,12 @@
 .pa-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 18px;
-    margin-bottom: 20px;
+    gap: 18px; margin-bottom: 20px;
 }
 .pa-grid-2 {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 16px;
-    margin-bottom: 20px;
+    gap: 16px; margin-bottom: 20px;
 }
 .form-group { margin-bottom: 18px; }
 .form-group label {
@@ -28,50 +26,42 @@
     border: 1px solid #d1d5db; border-radius: 9px;
     font-size: 14px; outline: none;
     transition: border-color .2s, box-shadow .2s;
-    box-sizing: border-box; font-family: inherit;
-    background: #fff;
+    box-sizing: border-box; font-family: inherit; background: #fff;
 }
 .form-group input:focus,
 .form-group select:focus,
 .form-group textarea:focus {
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59,130,246,.1);
+    border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,.1);
 }
 .form-section-title {
     font-size: 15px; font-weight: 700; color: #1e293b;
     margin: 24px 0 14px; padding-bottom: 8px;
     border-bottom: 2px solid #e5e7eb;
-    display: flex; align-items: center; gap: 8px;
 }
 .form-divider { border: none; border-top: 2px solid #e5e7eb; margin: 24px 0 20px; }
 
-.patch-select { font-weight: 700 !important; }
-.patch-select option { font-weight: 600; }
-
+/* Patch section */
 .patch-legend {
-    background: #f8fafc;
-    border: 1px solid #e5e7eb;
-    border-radius: 10px;
-    padding: 14px 18px;
-    margin-bottom: 20px;
-    font-size: 13px;
-    color: #475569;
+    background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 10px;
+    padding: 14px 18px; margin-bottom: 20px; font-size: 13px; color: #475569;
 }
 .patch-legend strong { display: block; margin-bottom: 8px; font-size: 13px; color: #1e293b; }
-.patch-legend-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    gap: 6px;
-}
+.patch-legend-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px,1fr)); gap: 6px; }
 .patch-legend-item {
     display: flex; align-items: center; gap: 8px;
-    padding: 6px 10px; border-radius: 6px;
-    font-size: 12px; font-weight: 600;
+    padding: 6px 10px; border-radius: 6px; font-size: 12px; font-weight: 600;
 }
 .pl-ok      { background: #d1fae5; color: #065f46; }
 .pl-not     { background: #fee2e2; color: #991b1b; }
 .pl-na      { background: #f1f5f9; color: #64748b; }
 .pl-pending { background: #fef3c7; color: #92400e; }
+
+/* Hidden section note */
+.hidden-fields-note {
+    background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px;
+    padding: 10px 14px; margin-bottom: 14px;
+    font-size: 12px; color: #92400e; display: flex; align-items: center; gap: 6px;
+}
 </style>
 
 <div class="card">
@@ -101,11 +91,11 @@
 
             <div class="pa-grid">
                 <div class="form-group">
-                    <label>Nama Perangkat <span class="req">*</span></label>
-                    <select name="nama_perangkat" required>
-                        <option value="">-- Pilih Nama Perangkat --</option>
-                        <?php foreach ($NAMA_PERANGKAT_OPTIONS as $opt): ?>
-                            <option value="<?= h($opt) ?>" <?= ($nama_perangkat === $opt) ? 'selected' : '' ?>>
+                    <label>Jenis Perangkat <span class="req">*</span></label>
+                    <select name="jenis_perangkat" required>
+                        <option value="">-- Pilih Jenis Perangkat --</option>
+                        <?php foreach ($JENIS_PERANGKAT_OPTIONS as $opt): ?>
+                            <option value="<?= h($opt) ?>" <?= ($jenis_perangkat === $opt) ? 'selected' : '' ?>>
                                 <?= h($opt) ?>
                             </option>
                         <?php endforeach; ?>
@@ -128,33 +118,28 @@
             <div class="pa-grid">
                 <div class="form-group">
                     <label>URL</label>
-                    <input type="text" name="url" value="<?= h($url) ?>"
-                           placeholder="https://contoh.pln.co.id">
+                    <input type="text" name="url" value="<?= h($url) ?>" placeholder="https://contoh.pln.co.id">
                 </div>
                 <div class="form-group">
                     <label>IP Address</label>
-                    <input type="text" name="ip" value="<?= h($ip) ?>"
-                           placeholder="192.168.1.100">
+                    <input type="text" name="ip" value="<?= h($ip) ?>" placeholder="192.168.1.100">
                 </div>
             </div>
 
             <div class="pa-grid">
                 <div class="form-group">
                     <label>Type</label>
-                    <input type="text" name="type" value="<?= h($type) ?>"
-                           placeholder="Contoh: Web Application, REST API, Desktop App">
+                    <input type="text" name="type" value="<?= h($type) ?>" placeholder="Web Application, REST API, Desktop App">
                 </div>
                 <div class="form-group">
                     <label>Server</label>
-                    <input type="text" name="server" value="<?= h($server) ?>"
-                           placeholder="Nama / IP server tempat aplikasi berjalan">
+                    <input type="text" name="server" value="<?= h($server) ?>" placeholder="Nama / IP server tempat aplikasi berjalan">
                 </div>
             </div>
 
             <div class="form-group">
                 <label>OS (Sistem Operasi Server)</label>
-                <input type="text" name="os" value="<?= h($os) ?>"
-                       placeholder="Contoh: Ubuntu 22.04, Windows Server 2019, RHEL 8">
+                <input type="text" name="os" value="<?= h($os) ?>" placeholder="Ubuntu 22.04, Windows Server 2019, RHEL 8">
             </div>
 
             <!-- ── PENEMPATAN ──────────────────────────────── -->
@@ -199,8 +184,7 @@
                 </div>
                 <div class="form-group">
                     <label>Pemilik Aset</label>
-                    <input type="text" name="pemilik_aset" value="<?= h($pemilik_aset) ?>"
-                           placeholder="Nama pemilik / penanggung jawab aset">
+                    <input type="text" name="pemilik_aset" value="<?= h($pemilik_aset) ?>" placeholder="Nama pemilik / penanggung jawab aset">
                 </div>
             </div>
 
@@ -220,7 +204,7 @@
             <div class="pa-grid-2">
                 <div class="form-group">
                     <label>Firmware Patch</label>
-                    <select name="firmware_patch" class="patch-select">
+                    <select name="firmware_patch">
                         <?php foreach ($PATCH_OPTIONS as $val => $label): ?>
                             <option value="<?= h($val) ?>" <?= ($firmware_patch === $val) ? 'selected' : '' ?>>
                                 <?= h($label) ?>
@@ -230,9 +214,55 @@
                 </div>
                 <div class="form-group">
                     <label>Network Device Patch</label>
-                    <select name="network_device_patch" class="patch-select">
+                    <select name="network_device_patch">
                         <?php foreach ($PATCH_OPTIONS as $val => $label): ?>
                             <option value="<?= h($val) ?>" <?= ($network_device_patch === $val) ? 'selected' : '' ?>>
+                                <?= h($label) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+            </div>
+
+            <div class="pa-grid-2">
+                <div class="form-group">
+                    <label>Application Patch</label>
+                    <select name="application_patch">
+                        <?php foreach ($PATCH_OPTIONS as $val => $label): ?>
+                            <option value="<?= h($val) ?>" <?= ($application_patch === $val) ? 'selected' : '' ?>>
+                                <?= h($label) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>OS Patch</label>
+                    <select name="os_patch">
+                        <?php foreach ($PATCH_OPTIONS as $val => $label): ?>
+                            <option value="<?= h($val) ?>" <?= ($os_patch === $val) ? 'selected' : '' ?>>
+                                <?= h($label) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+            </div>
+
+            <div class="pa-grid-2">
+                <div class="form-group">
+                    <label>Library / Dependency Patch</label>
+                    <select name="library_dependency_patch">
+                        <?php foreach ($PATCH_OPTIONS as $val => $label): ?>
+                            <option value="<?= h($val) ?>" <?= ($library_dependency_patch === $val) ? 'selected' : '' ?>>
+                                <?= h($label) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Database Patch</label>
+                    <select name="database_patch">
+                        <?php foreach ($PATCH_OPTIONS as $val => $label): ?>
+                            <option value="<?= h($val) ?>" <?= ($database_patch === $val) ? 'selected' : '' ?>>
                                 <?= h($label) ?>
                             </option>
                         <?php endforeach; ?>
