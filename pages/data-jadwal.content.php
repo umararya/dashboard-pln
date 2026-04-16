@@ -5,7 +5,7 @@
 <div class="card">
   <div class="card-header" style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
     <div>
-      <h2>📋 Data Jadwal</h2>
+      <h2>📋 Data Jadwal Pemesanan Ruangan</h2>
       <p>Total: <strong><?= count($rows) ?></strong> jadwal</p>
     </div>
 
@@ -27,15 +27,15 @@
     <div class="table-responsive">
       <table class="data-table">
         <?php
-            $isAdmin = (current_user()['role'] ?? '') === 'admin';
-            ?>
+        $isAdmin = (current_user()['role'] ?? '') === 'admin';
+        ?>
 
         <thead>
           <tr>
             <th>NO</th>
-            
+
             <?php if ($isAdmin): ?>
-                <th>ID Transaksi</th>
+              <th>ID Transaksi</th>
             <?php endif; ?>
 
             <th>Start</th>
@@ -52,7 +52,8 @@
           </tr>
         </thead>
         <tbody>
-          <?php $no = 1; foreach ($rows as $r): ?>
+          <?php $no = 1;
+          foreach ($rows as $r): ?>
             <tr>
               <td><?= $no++ ?></td>
               <?php if ($isAdmin): ?>

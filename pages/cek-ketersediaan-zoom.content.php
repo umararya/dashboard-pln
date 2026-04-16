@@ -110,6 +110,17 @@
     padding: 3px 8px; border-radius: 5px; color: #0369a1; display: inline-block;
 }
 
+/* Action column - booking button */
+.btn-book-zoom {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: 700;
+    background: #3b82f6; color: #fff; text-decoration: none;
+    border: none; cursor: pointer; white-space: nowrap;
+    transition: background 0.2s, transform 0.15s;
+}
+.btn-book-zoom:hover { background: #2563eb; transform: translateY(-1px); }
+.btn-book-zoom:active { transform: translateY(0); }
+
 /* Loading spinner */
 .avail-loading {
     display: none; text-align: center; padding: 40px;
@@ -192,6 +203,7 @@
                         <th style="width:130px;">Status</th>
                         <th>Detail Booking (Rentang Tanggal)</th>
                         <th style="width:160px;">Keterangan</th>
+                        <th style="width:110px;text-align:center;">Aksi</th>
                     </tr>
                 </thead>
                 <tbody id="availTableBody">
@@ -204,6 +216,8 @@
 <script>
 // Zoom links aktif dari PHP (tidak berubah tanpa reload)
 const ALL_ZOOM_LINKS = <?= json_encode($zoom_links_active, JSON_UNESCAPED_UNICODE) ?>;
+
+const BOOKING_FORM_URL = <?= json_encode(base_url('pages/booking-zoom-form.php')) ?>;
 
 // URL endpoint AJAX
 const API_URL = <?= json_encode(base_url('pages/api-zoom-bookings.php')) ?>;
@@ -337,16 +351,26 @@ function renderResult(allBookings, fromStr, toStr) {
 
         const rowBg = (idx % 2 === 0) ? '' : 'style="background:#f8fafc;"';
 
+        // Action column: show booking button only when kosong
+        let actionHtml = '';
+        if (!hasBk) {
+            actionHtml = '<a href="#" class="btn-book-zoom" title="Booking zoom ini" ' +
+                'onclick="goBooking(\'' + escHtml(email) + '\',\'' + fromStr + '\'); return false;">📅 Booking</a>';
+        } else {
+            actionHtml = '<span style="color:#cbd5e1;font-size:12px;">—</span>';
+        }
+
         rows += '<tr ' + rowBg + '>' +
                 '<td style="font-weight:700;color:#475569;">' + (idx + 1) + '</td>' +
                 '<td><span class="zoom-email-cell">' + escHtml(email) + '</span></td>' +
                 '<td>' + statusBadge + '</td>' +
                 '<td>' + detailHtml + '</td>' +
                 '<td>' + ketHtml + '</td>' +
+                '<td style="text-align:center;">' + actionHtml + '</td>' +
                 '</tr>';
     });
 
-    tbodyEl.innerHTML = rows || '<tr><td colspan="5" style="text-align:center;padding:40px;color:#94a3b8;">Tidak ada akun Zoom aktif</td></tr>';
+    tbodyEl.innerHTML = rows || '<tr><td colspan="6" style="text-align:center;padding:40px;color:#94a3b8;">Tidak ada akun Zoom aktif</td></tr>';
 
     titleEl.textContent    = 'Hasil Pengecekan Ketersediaan Zoom';
     subtitleEl.textContent = 'Rentang: ' + fmtDateRange(fromStr, toStr);
@@ -365,6 +389,28 @@ function escHtml(str) {
     const d = document.createElement('div');
     d.appendChild(document.createTextNode(str || ''));
     return d.innerHTML;
+}
+
+/* ── Go to booking form with current time pre-filled ─────────── */
+function goBooking(email, dateStr) {
+    const now = new Date();
+    const hh  = String(now.getHours()).padStart(2, '0');
+    const mm  = String(now.getMinutes()).padStart(2, '0');
+
+    // End = 1 hour later
+    const endDate = new Date(now.getTime() + 60 * 60 * 1000);
+    const ehh = String(endDate.getHours()).padStart(2, '0');
+    const emm = String(endDate.getMinutes()).padStart(2, '0');
+
+    const startDT = dateStr + 'T' + hh + ':' + mm;
+    const endDT   = dateStr + 'T' + ehh + ':' + emm;
+
+    const url = BOOKING_FORM_URL +
+        '?zoom_link='       + encodeURIComponent(email) +
+        '&start_datetime='  + encodeURIComponent(startDT) +
+        '&end_datetime='    + encodeURIComponent(endDT);
+
+    window.location.href = url;
 }
 
 /* ── Main: fetch fresh data then render ──────────────────────── */

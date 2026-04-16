@@ -27,10 +27,10 @@ $UNIT_OPTIONS = $pdo->query(
 
 $errors = [];
 
-// Retain input saat error
-$start_datetime = $_POST['start_datetime'] ?? '';
-$end_datetime   = $_POST['end_datetime']   ?? '';
-$zoom_link      = $_POST['zoom_link']      ?? '';
+// Retain input saat error, atau pre-fill dari query string (dari halaman cek ketersediaan)
+$start_datetime = $_POST['start_datetime'] ?? $_GET['start_datetime'] ?? '';
+$end_datetime   = $_POST['end_datetime']   ?? $_GET['end_datetime']   ?? '';
+$zoom_link      = $_POST['zoom_link']      ?? $_GET['zoom_link']      ?? '';
 $unit           = $_POST['unit']           ?? '';
 $keterangan     = $_POST['keterangan']     ?? '';
 

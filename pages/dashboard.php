@@ -112,6 +112,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 // Load data table
 $rows = $pdo->query("SELECT * FROM schedules ORDER BY created_at DESC, id DESC")->fetchAll();
 
+// ── ZOOM STATS ───────────────────────────────────────────────────────────────
+auto_release_zoom_bookings($pdo);
+
+// Total booking zoom
+$zoom_total = (int) $pdo->query("SELECT COUNT(*) FROM zoom_bookings")->fetchColumn();
+
+// Booking zoom bulan ini
+$zoom_month = (int) $pdo->prepare("SELECT COUNT(*) FROM zoom_bookings WHERE DATE_FORMAT(created_at, '%Y-%m') = :ym")
+    ->execute([':ym' => date('Y-m')]) ? 0 : 0;
+$stmt_zm = $pdo->prepare("SELECT COUNT(*) FROM zoom_bookings WHERE DATE_FORMAT(created_at, '%Y-%m') = :ym");
+$stmt_zm->execute([':ym' => date('Y-m')]);
+$zoom_month = (int) $stmt_zm->fetchColumn();
+
+// Zoom tersedia hari ini
+$zoom_active_total = (int) $pdo->query("SELECT COUNT(*) FROM zoom_links WHERE is_active = 1")->fetchColumn();
+$today = date('Y-m-d');
+$stmt_zt = $pdo->prepare("
+    SELECT COUNT(DISTINCT zoom_link) FROM zoom_bookings
+    WHERE (
+        (start_datetime IS NOT NULL AND end_datetime IS NOT NULL AND DATE(start_datetime) <= :today1 AND DATE(end_datetime) >= :today2)
+        OR (start_datetime IS NULL AND booking_date = :today3)
+    )
+");
+$stmt_zt->execute([':today1' => $today, ':today2' => $today, ':today3' => $today]);
+$zoom_booked_today = (int) $stmt_zt->fetchColumn();
+$zoom_available_today = max(0, $zoom_active_total - $zoom_booked_today);
+
 // Variabel untuk layout
 $page_title   = "Dashboard";
 $active_menu  = "dashboard";

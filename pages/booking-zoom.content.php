@@ -81,24 +81,6 @@
     margin-left: 10px;
 }
 
-/* ── Kondisi dot ─────────────────────────────────────────────── */
-.kondisi-dot-form { display: flex; justify-content: center; align-items: center; }
-.kondisi-dot-btn {
-    width: 22px;
-    height: 22px;
-    border-radius: 50%;
-    border: none;
-    cursor: pointer;
-    display: block;
-    transition: transform 0.15s, box-shadow 0.15s;
-    flex-shrink: 0;
-}
-.kondisi-dot-btn:hover {
-    transform: scale(1.25);
-    box-shadow: 0 0 0 3px rgba(0,0,0,0.12);
-}
-.kondisi-dot-btn.kosong  { background: #22c55e; }
-.kondisi-dot-btn.dipakai { background: #f59e0b; }
 
 /* ── Table ──────────────────────────────────────────────────── */
 .unit-badge {
@@ -178,9 +160,7 @@
     <?php if (isset($_GET['added'])): ?>
         <div class="alert alert-success" style="margin: 12px 25px 0;">✅ Booking zoom berhasil ditambahkan.</div>
     <?php endif; ?>
-    <?php if (isset($_GET['updated'])): ?>
-        <div class="alert alert-success" style="margin: 12px 25px 0;">✅ Kondisi berhasil diupdate.</div>
-    <?php endif; ?>
+
     <?php if (isset($_GET['deleted'])): ?>
         <div class="alert alert-success" style="margin: 12px 25px 0;">✅ Booking berhasil dihapus.</div>
     <?php endif; ?>
@@ -206,14 +186,6 @@
                     </select>
                 </div>
 
-                <div class="filter-field">
-                    <label>Kondisi</label>
-                    <select name="filter_kondisi">
-                        <option value="">Semua Kondisi</option>
-                        <option value="KOSONG"  <?= $filter_kondisi === 'KOSONG'  ? 'selected' : '' ?>>🟢 KOSONG</option>
-                        <option value="DIPAKAI" <?= $filter_kondisi === 'DIPAKAI' ? 'selected' : '' ?>>🟡 DIPAKAI</option>
-                    </select>
-                </div>
 
                 <div class="filter-field">
                     <label>Link Zoom</label>
@@ -262,7 +234,7 @@
                         <th>Unit</th>
                         <th>Link Zoom</th>
                         <th>Keterangan</th>
-                        <th style="width:60px;text-align:center;">Kondisi</th>
+
                         <th>Dibuat Oleh</th>
                         <th>Dibuat Pada</th>
                         <th style="width:120px;">Aksi</th>
@@ -332,20 +304,6 @@
                                 <?= h($r['keterangan'] ?: '—') ?>
                             </td>
 
-                            <!-- Kondisi: hanya bulatan berwarna, klik untuk toggle -->
-                            <td style="text-align:center;vertical-align:middle;">
-                                <form method="post" action="<?= base_url('pages/booking-zoom.php') ?>" style="margin:0;" class="kondisi-dot-form">
-                                    <input type="hidden" name="action"     value="update_kondisi">
-                                    <input type="hidden" name="booking_id" value="<?= $r['id'] ?>">
-                                    <input type="hidden" name="kondisi"    value="<?= $r['kondisi'] === 'KOSONG' ? 'DIPAKAI' : 'KOSONG' ?>">
-                                    <button
-                                        type="submit"
-                                        class="kondisi-dot-btn <?= strtolower($r['kondisi']) ?>"
-                                        title="<?= $r['kondisi'] === 'KOSONG' ? '🟢 KOSONG — klik untuk ubah ke DIPAKAI' : '🟡 DIPAKAI — klik untuk ubah ke KOSONG' ?>"
-                                        onclick="return confirm('Ubah kondisi menjadi <?= $r['kondisi'] === 'KOSONG' ? 'DIPAKAI' : 'KOSONG' ?>?')"
-                                    ></button>
-                                </form>
-                            </td>
 
                             <td><?= h($r['booked_by_name'] ?? '-') ?></td>
 
