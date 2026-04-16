@@ -15,12 +15,10 @@ require_permission('booking-zoom');
 
 $pdo = db();
 
-// Auto-release booking yang sudah lewat end_datetime
-auto_release_zoom_bookings($pdo);
-
 $KONDISI_OPTIONS = ['KOSONG', 'DIPAKAI'];
 
 // Handle POST - Update Kondisi
+// ⚠️ auto_release dipanggil SETELAH handle POST agar update manual tidak langsung di-reset
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'update_kondisi') {
     $id          = (int)($_POST['booking_id'] ?? 0);
     $new_kondisi = $_POST['kondisi'] ?? '';
@@ -46,6 +44,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     header('Location: ' . base_url('pages/booking-zoom.php?deleted=1'));
     exit;
 }
+
+// Auto-release booking yang sudah melewati end_datetime
+// ✅ Dipanggil di sini (setelah POST handler) agar update kondisi manual tidak ikut ter-reset
+auto_release_zoom_bookings($pdo);
 
 // ── FILTER ───────────────────────────────────────────────────────────────────
 $filter_unit    = trim($_GET['filter_unit']    ?? '');
