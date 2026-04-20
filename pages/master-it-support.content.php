@@ -2,10 +2,53 @@
 // pages/master-it-support.content.php
 ?>
 
+<style>
+.card { background:#fff; border-radius:12px; box-shadow:0 2px 10px rgba(0,0,0,.08); margin-bottom:24px; overflow:hidden; }
+.card-header { padding:20px 24px; border-bottom:1px solid #e5e7eb; }
+.card-header h2 { margin:0 0 6px 0; font-size:22px; font-weight:800; color:#0f172a; }
+.card-header p { margin:0; color:#64748b; font-size:14px; }
+.alert { padding:12px 18px; border-radius:10px; margin:16px 24px; font-size:14px; }
+.alert-success { background:#ecfdf5; border:1px solid #10b981; color:#065f46; }
+.alert-error { background:#fef2f2; border:1px solid #ef4444; color:#991b1b; }
+.form-section { padding:18px 24px; background:#f8fafc; border-bottom:1px solid #e5e7eb; }
+.form-section h3 { margin:0 0 12px 0; font-size:16px; font-weight:800; color:#0f172a; }
+.form-inline { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+.form-inline input { padding:10px 12px; border:1px solid #d1d5db; border-radius:10px; font-size:14px; min-width:260px; flex:1; }
+.table-responsive { overflow-x:auto; }
+.data-table { width:100%; border-collapse:collapse; font-size:14px; }
+.data-table thead th { background:#f8fafc; padding:14px 18px; text-align:left; font-weight:800; color:#475569; border-bottom:2px solid #e5e7eb; }
+.data-table tbody td { padding:12px 18px; border-bottom:1px solid #e5e7eb; }
+.data-table tbody tr:hover { background:#f8fafc; }
+.text-center { text-align:center; color:#94a3b8; }
+.btn { border:none; border-radius:10px; padding:10px 14px; font-weight:700; cursor:pointer; text-decoration:none; display:inline-block; }
+.btn-primary { background:#3b82f6; color:#fff; }
+.btn-secondary { background:#e5e7eb; color:#111827; }
+.btn-danger { background:#ef4444; color:#fff; }
+.btn-edit { background:#10b981; color:#fff; }
+.btn-sm { padding:7px 10px; font-size:13px; }
+.btn-group { display:flex; gap:8px; align-items:center; }
+
+/* Pagination */
+.pagination { display:flex; justify-content:center; align-items:center; gap:8px; padding:20px 24px; flex-wrap:wrap; }
+.pagination a, .pagination span { padding:8px 14px; border:1px solid #d1d5db; border-radius:6px; text-decoration:none; color:#374151; font-size:13px; font-weight:600; }
+.pagination a:hover { background:#f3f4f6; border-color:#9ca3af; }
+.pagination .active { background:#3b82f6; color:white; border-color:#3b82f6; }
+
+.modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:2000; align-items:center; justify-content:center; }
+.modal.show { display:flex; }
+.modal-content { background:#fff; border-radius:14px; width:92%; max-width:520px; overflow:hidden; }
+.modal-header { padding:18px 22px; border-bottom:1px solid #e5e7eb; display:flex; justify-content:space-between; align-items:center; }
+.close-modal { background:none; border:none; font-size:28px; cursor:pointer; color:#94a3b8; }
+.form-group { padding:0 22px; margin:16px 0; }
+.form-group label { display:block; font-weight:700; margin-bottom:8px; color:#374151; font-size:14px; }
+.form-group input { width:100%; padding:10px 12px; border:1px solid #d1d5db; border-radius:10px; font-size:14px; box-sizing:border-box; }
+.modal-footer { padding:16px 22px; border-top:1px solid #e5e7eb; display:flex; justify-content:flex-end; gap:10px; }
+</style>
+
 <div class="card">
     <div class="card-header">
         <h2>👨‍💻 Master PIC IT Support</h2>
-        <p>Kelola daftar penanggung jawab IT Support</p>
+        <p>Total: <strong><?= $total_count ?></strong> PIC | Halaman <?= $page ?> dari <?= max(1, $total_pages) ?></p>
     </div>
 
     <?php if (!empty($success)): ?>
@@ -16,9 +59,7 @@
         <div class="alert alert-error">
             <strong>⚠ Error:</strong>
             <ul style="margin:8px 0 0 18px;">
-                <?php foreach ($errors as $e): ?>
-                    <li><?= h($e) ?></li>
-                <?php endforeach; ?>
+                <?php foreach ($errors as $e): ?><li><?= h($e) ?></li><?php endforeach; ?>
             </ul>
         </div>
     <?php endif; ?>
@@ -27,7 +68,7 @@
         <h3>➕ Tambah PIC IT Support Baru</h3>
         <form method="post" class="form-inline">
             <input type="hidden" name="action" value="add_pic">
-            <input type="text" name="pic_name" placeholder="Nama PIC IT Support" required style="flex:1;min-width:300px;">
+            <input type="text" name="pic_name" placeholder="Nama PIC IT Support" required>
             <button type="submit" class="btn btn-primary">Tambah PIC</button>
         </form>
     </div>
@@ -45,20 +86,16 @@
                 <?php if (empty($pic_list)): ?>
                     <tr><td colspan="3" class="text-center">Belum ada data PIC IT Support</td></tr>
                 <?php else: ?>
-                    <?php $no = 1; foreach ($pic_list as $pic): ?>
+                    <?php $no = $offset + 1; foreach ($pic_list as $pic): ?>
                         <tr>
                             <td><?= $no++ ?></td>
                             <td><strong><?= h($pic['name']) ?></strong></td>
                             <td>
                                 <div class="btn-group">
-                                    <button
-                                        type="button"
-                                        class="btn btn-sm btn-edit"
-                                        onclick='editPic(<?= (int)$pic["id"] ?>, <?= json_encode($pic["name"]) ?>)'
-                                    >
+                                    <button type="button" class="btn btn-sm btn-edit"
+                                        onclick='editPic(<?= (int)$pic["id"] ?>, <?= json_encode($pic["name"]) ?>)'>
                                         Edit
                                     </button>
-
                                     <form method="post" style="display:inline;" onsubmit="return confirm('Yakin hapus PIC ini?')">
                                         <input type="hidden" name="action" value="delete_pic">
                                         <input type="hidden" name="pic_id" value="<?= (int)$pic['id'] ?>">
@@ -72,24 +109,42 @@
             </tbody>
         </table>
     </div>
+
+    <?php if ($total_pages > 1): ?>
+        <div class="pagination">
+            <?php if ($page > 1): ?>
+                <a href="?page=1">«« First</a>
+                <a href="?page=<?= $page - 1 ?>">‹ Prev</a>
+            <?php endif; ?>
+            <?php for ($i = max(1, $page - 2); $i <= min($total_pages, $page + 2); $i++): ?>
+                <?php if ($i === $page): ?>
+                    <span class="active"><?= $i ?></span>
+                <?php else: ?>
+                    <a href="?page=<?= $i ?>"><?= $i ?></a>
+                <?php endif; ?>
+            <?php endfor; ?>
+            <?php if ($page < $total_pages): ?>
+                <a href="?page=<?= $page + 1 ?>">Next ›</a>
+                <a href="?page=<?= $total_pages ?>">Last »»</a>
+            <?php endif; ?>
+        </div>
+    <?php endif; ?>
 </div>
 
 <!-- Modal Edit PIC -->
 <div id="editModal" class="modal">
     <div class="modal-content">
         <div class="modal-header">
-            <h3>✏️ Edit PIC IT Support</h3>
+            <h3 style="margin:0;font-size:18px;font-weight:800;">✏️ Edit PIC IT Support</h3>
             <button type="button" class="close-modal" onclick="closeEditModal()">&times;</button>
         </div>
         <form method="post">
             <input type="hidden" name="action" value="edit_pic">
             <input type="hidden" name="pic_id" id="editPicId">
-
             <div class="form-group">
                 <label>Nama PIC IT Support</label>
                 <input type="text" name="pic_name" id="editPicName" required>
             </div>
-
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" onclick="closeEditModal()">Batal</button>
                 <button type="submit" class="btn btn-primary">Simpan</button>
@@ -100,16 +155,12 @@
 
 <script>
 function editPic(id, name) {
-    document.getElementById('editPicId').value = id;
+    document.getElementById('editPicId').value  = id;
     document.getElementById('editPicName').value = name;
     document.getElementById('editModal').classList.add('show');
 }
-function closeEditModal() {
-    document.getElementById('editModal').classList.remove('show');
-}
-document.addEventListener('click', function(e) {
-    if (e.target && e.target.classList && e.target.classList.contains('modal')) {
-        e.target.classList.remove('show');
-    }
+function closeEditModal() { document.getElementById('editModal').classList.remove('show'); }
+document.addEventListener('click', function (e) {
+    if (e.target && e.target.classList.contains('modal')) e.target.classList.remove('show');
 });
 </script>

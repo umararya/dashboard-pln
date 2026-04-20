@@ -25,6 +25,10 @@ $MASTER_MAP = [
     'msb'    => ['table' => 'master_pa_msb',             'label' => 'MSB / Sub Bidang'],
 ];
 
+// Tab aktif
+$active_tab = $_GET['tab'] ?? 'jenis';
+if (!array_key_exists($active_tab, $MASTER_MAP)) $active_tab = 'jenis';
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action    = $_POST['action']   ?? '';
     $tab_key   = $_POST['tab_key']  ?? '';
@@ -83,27 +87,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $success = "Status $label berhasil diubah.";
             }
         }
-    }
 
-    $active_tab = $tab_key ?: 'jenis';
-    if (!$errors) {
-        header('Location: ' . base_url('pages/master-perangkat-aplikasi.php?tab=' . $active_tab . '&ok=1'));
-        exit;
+        $active_tab = $tab_key;
+        if (!$errors) {
+            header('Location: ' . base_url('pages/master-perangkat-aplikasi.php?tab=' . $active_tab . '&ok=1'));
+            exit;
+        }
     }
 }
 
-// ── Load semua data ─────────────────────────────────────────────
-$data = [];
+// ── PAGINATION PER TAB ──────────────────────────────────────────
+$per_page = 10;
+$page     = max(1, (int)($_GET['page'] ?? 1));
+
+// When switching tabs, reset to page 1
+$data        = [];
+$tab_totals  = [];
+$tab_pages   = [];
+
 foreach ($MASTER_MAP as $key => $cfg) {
-    $tbl        = $cfg['table'];
-    $data[$key] = $pdo->query(
-        "SELECT * FROM `$tbl` ORDER BY sort_order ASC, id ASC"
-    )->fetchAll();
+    $tbl = $cfg['table'];
+
+    // Count for every tab (needed for badge display)
+    $tab_totals[$key] = (int)$pdo->query("SELECT COUNT(*) FROM `$tbl`")->fetchColumn();
+    $tab_pages[$key]  = (int)ceil($tab_totals[$key] / $per_page);
+
+    // Load paged data only for active tab
+    if ($key === $active_tab) {
+        $p      = $page;
+        $offset = ($p - 1) * $per_page;
+
+        $stmt = $pdo->prepare("SELECT * FROM `$tbl` ORDER BY sort_order ASC, id ASC LIMIT :lim OFFSET :off");
+        $stmt->bindValue(':lim', $per_page, PDO::PARAM_INT);
+        $stmt->bindValue(':off', $offset,   PDO::PARAM_INT);
+        $stmt->execute();
+        $data[$key] = $stmt->fetchAll();
+    } else {
+        $data[$key] = [];
+    }
 }
 
-// Tab aktif
-$active_tab = $_GET['tab'] ?? 'jenis';
-if (!array_key_exists($active_tab, $MASTER_MAP)) $active_tab = 'jenis';
+$total_count = $tab_totals[$active_tab];
+$total_pages = $tab_pages[$active_tab];
+$offset      = ($page - 1) * $per_page;
 
 $page_title   = 'Master Perangkat Aplikasi';
 $active_menu  = 'master-perangkat-aplikasi';

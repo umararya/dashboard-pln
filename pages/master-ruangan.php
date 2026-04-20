@@ -18,7 +18,6 @@ $pdo = db();
 $success = '';
 $errors = [];
 
-// Handle POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
 
@@ -50,7 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if ($action === 'edit_room') {
-        $id = (int)($_POST['room_id'] ?? 0);
+        $id   = (int)($_POST['room_id'] ?? 0);
         $name = trim($_POST['room_name'] ?? '');
         if ($id > 0 && $name !== '') {
             $stmt = $pdo->prepare("SELECT COUNT(*) FROM meeting_rooms WHERE name = :name AND id != :id");
@@ -66,14 +65,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Load data
-$room_list = $pdo->query("SELECT * FROM meeting_rooms ORDER BY sort_order ASC, id ASC")->fetchAll();
+// ── PAGINATION ──────────────────────────────────────────────────
+$per_page    = 10;
+$page        = max(1, (int)($_GET['page'] ?? 1));
+$offset      = ($page - 1) * $per_page;
 
-// Variabel untuk layout
+$total_count = (int)$pdo->query("SELECT COUNT(*) FROM meeting_rooms")->fetchColumn();
+$total_pages = (int)ceil($total_count / $per_page);
+
+$stmt = $pdo->prepare("SELECT * FROM meeting_rooms ORDER BY sort_order ASC, id ASC LIMIT :lim OFFSET :off");
+$stmt->bindValue(':lim', $per_page, PDO::PARAM_INT);
+$stmt->bindValue(':off', $offset,   PDO::PARAM_INT);
+$stmt->execute();
+$room_list = $stmt->fetchAll();
+
 $page_title   = "Master Ruangan";
 $active_menu  = "master-ruangan";
 $content_file = __DIR__ . "/master-ruangan.content.php";
 
-// Render via layout
 require_once __DIR__ . '/../includes/layout.php';
 exit;

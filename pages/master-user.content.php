@@ -1,9 +1,8 @@
 <?php
-// pages/master-user-v2.content.php
+// pages/master-user.content.php
 ?>
 
 <style>
-/* Existing styles from master-user.content.php */
 .card { background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); padding: 0; margin-bottom: 25px; }
 .card-header { padding: 20px 25px; border-bottom: 1px solid #e5e7eb; }
 .card-header h2 { font-size: 22px; font-weight: 700; margin-bottom: 5px; color: #1e293b; }
@@ -16,18 +15,20 @@
 .form-inline { display: flex; gap: 10px; flex-wrap: wrap; }
 .form-inline input, .form-inline select { padding: 10px 14px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px; outline: none; }
 .form-inline input[type="text"], .form-inline input[type="password"] { min-width: 180px; flex: 1; }
+.form-inline select { min-width: 120px; }
 .table-responsive { padding: 0; overflow-x: auto; }
 .data-table { width: 100%; border-collapse: collapse; font-size: 14px; }
-.data-table thead th { background: #f8fafc; padding: 14px 20px; text-align: left; font-weight: 700; color: #475569; border-bottom: 2px solid #e5e7eb; }
+.data-table thead th { background: #f8fafc; padding: 14px 20px; text-align: left; font-weight: 700; color: #475569; border-bottom: 2px solid #e5e7eb; white-space: nowrap; }
 .data-table tbody td { padding: 14px 20px; border-bottom: 1px solid #e5e7eb; }
 .data-table tbody tr:hover { background: #f8fafc; }
-.text-center { text-align: center; color: #94a3b8; }
+.text-center { text-align: center; color: #94a3b8; font-style: italic; }
 .badge { display: inline-block; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 700; text-transform: uppercase; }
 .badge-primary { background: #dbeafe; color: #1e40af; }
 .badge-danger { background: #fee2e2; color: #991b1b; }
-.toggle-btn { padding: 6px 12px; border: none; border-radius: 20px; font-size: 12px; font-weight: 700; cursor: pointer; }
+.toggle-btn { padding: 6px 12px; border: none; border-radius: 20px; font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
 .toggle-btn.active { background: #10b981; color: white; }
 .toggle-btn.inactive { background: #ef4444; color: white; }
+.toggle-btn:hover { opacity: 0.8; }
 .btn-group { display: flex; gap: 6px; }
 .btn { padding: 8px 16px; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-block; }
 .btn-sm { padding: 6px 12px; font-size: 13px; }
@@ -40,13 +41,21 @@
 .modal.show { display: flex; }
 .modal-content { background: white; border-radius: 12px; width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; }
 .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 25px; border-bottom: 1px solid #e5e7eb; }
-.close-modal { background: none; border: none; font-size: 28px; cursor: pointer; color: #94a3b8; }
+.modal-header h3 { margin: 0; font-size: 18px; font-weight: 700; color: #1e293b; }
+.close-modal { background: none; border: none; font-size: 28px; cursor: pointer; color: #94a3b8; line-height: 1; }
+.close-modal:hover { color: #475569; }
 .form-group { padding: 0 25px; margin: 20px 0; }
 .form-group label { display: block; font-weight: 600; margin-bottom: 8px; color: #374151; font-size: 14px; }
 .form-group input, .form-group select { width: 100%; padding: 10px 14px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px; }
 .modal-footer { display: flex; gap: 10px; justify-content: flex-end; padding: 20px 25px; border-top: 1px solid #e5e7eb; }
 
-/* NEW: Permission Checkboxes Styles */
+/* Pagination */
+.pagination { display: flex; justify-content: center; align-items: center; gap: 8px; padding: 20px 25px; flex-wrap: wrap; }
+.pagination a, .pagination span { padding: 8px 14px; border: 1px solid #d1d5db; border-radius: 6px; text-decoration: none; color: #374151; font-size: 13px; font-weight: 600; }
+.pagination a:hover { background: #f3f4f6; border-color: #9ca3af; }
+.pagination .active { background: #3b82f6; color: white; border-color: #3b82f6; }
+
+/* Permission Checkboxes */
 .permission-section { padding: 0 25px; margin: 20px 0; }
 .permission-section h4 { font-size: 15px; font-weight: 700; color: #1e293b; margin-bottom: 12px; }
 .permission-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
@@ -64,7 +73,7 @@
 <div class="card">
     <div class="card-header">
         <h2>👥 Master User Management</h2>
-        <p>Kelola akses user dan permissions</p>
+        <p>Total: <strong><?= $total_count ?></strong> user | Halaman <?= $page ?> dari <?= max(1, $total_pages) ?></p>
     </div>
 
     <?php if (!empty($success)): ?>
@@ -75,9 +84,7 @@
         <div class="alert alert-error">
             <strong>⚠ Error:</strong>
             <ul style="margin: 8px 0 0 20px;">
-                <?php foreach ($errors as $e): ?>
-                    <li><?= h($e) ?></li>
-                <?php endforeach; ?>
+                <?php foreach ($errors as $e): ?><li><?= h($e) ?></li><?php endforeach; ?>
             </ul>
         </div>
     <?php endif; ?>
@@ -86,7 +93,6 @@
         <h3>➕ Tambah User Baru</h3>
         <form method="post" id="addUserForm">
             <input type="hidden" name="action" value="add_user">
-            
             <div class="form-inline">
                 <input type="text" name="username" placeholder="Username" required>
                 <input type="text" name="password" placeholder="Password" required>
@@ -96,25 +102,22 @@
                 </select>
                 <input type="text" name="bagian" placeholder="Bagian/Divisi">
             </div>
-            
-            <!-- Permission Checkboxes (show only for user role) -->
             <div id="addPermissionsSection" style="margin-top: 16px; padding-top: 16px; border-top: 1px solid #e5e7eb; display: none;">
                 <h4 style="font-size: 14px; font-weight: 700; margin-bottom: 10px; color: #1e293b;">🔐 Pilih Akses Page:</h4>
                 <div class="permission-grid">
-                    <?php foreach ($available_pages as $slug => $page): ?>
+                    <?php foreach ($available_pages as $slug => $page_info): ?>
                         <label class="permission-item" onclick="togglePermissionItem(this)">
                             <div class="permission-checkbox">
                                 <input type="checkbox" name="permissions[]" value="<?= h($slug) ?>" onclick="event.stopPropagation()">
                                 <div class="permission-info">
-                                    <div class="permission-title"><?= $page['icon'] ?> <?= h($page['name']) ?></div>
-                                    <div class="permission-desc"><?= h($page['description']) ?></div>
+                                    <div class="permission-title"><?= $page_info['icon'] ?> <?= h($page_info['name']) ?></div>
+                                    <div class="permission-desc"><?= h($page_info['description']) ?></div>
                                 </div>
                             </div>
                         </label>
                     <?php endforeach; ?>
                 </div>
             </div>
-            
             <div style="margin-top: 12px;">
                 <button type="submit" class="btn btn-primary">Tambah User</button>
             </div>
@@ -139,7 +142,7 @@
                 <?php if (empty($users)): ?>
                     <tr><td colspan="8" class="text-center">Belum ada user</td></tr>
                 <?php else: ?>
-                    <?php $no = 1; foreach ($users as $u): ?>
+                    <?php $no = $offset + 1; foreach ($users as $u): ?>
                         <tr>
                             <td><?= $no++ ?></td>
                             <td><strong><?= h($u['username']) ?></strong></td>
@@ -153,9 +156,9 @@
                                     <span style="color: #94a3b8; font-size: 13px;">No Access</span>
                                 <?php else: ?>
                                     <?php foreach ($u['permissions'] as $perm): ?>
-                                        <?php $page = $available_pages[$perm] ?? null; ?>
-                                        <?php if ($page): ?>
-                                            <span class="permission-badge"><?= $page['icon'] ?> <?= h($page['name']) ?></span>
+                                        <?php $pg = $available_pages[$perm] ?? null; ?>
+                                        <?php if ($pg): ?>
+                                            <span class="permission-badge"><?= $pg['icon'] ?> <?= h($pg['name']) ?></span>
                                         <?php endif; ?>
                                     <?php endforeach; ?>
                                 <?php endif; ?>
@@ -173,7 +176,6 @@
                             <td>
                                 <div class="btn-group">
                                     <button type="button" class="btn btn-sm btn-edit" onclick='editUser(<?= json_encode($u) ?>)'>Edit</button>
-
                                     <?php if ((int)$u['id'] !== (int)($_SESSION['user_id'] ?? 0)): ?>
                                         <form method="post" style="display: inline;" onsubmit="return confirm('Yakin hapus user ini?')">
                                             <input type="hidden" name="action" value="delete_user">
@@ -189,6 +191,26 @@
             </tbody>
         </table>
     </div>
+
+    <?php if ($total_pages > 1): ?>
+        <div class="pagination">
+            <?php if ($page > 1): ?>
+                <a href="?page=1">«« First</a>
+                <a href="?page=<?= $page - 1 ?>">‹ Prev</a>
+            <?php endif; ?>
+            <?php for ($i = max(1, $page - 2); $i <= min($total_pages, $page + 2); $i++): ?>
+                <?php if ($i === $page): ?>
+                    <span class="active"><?= $i ?></span>
+                <?php else: ?>
+                    <a href="?page=<?= $i ?>"><?= $i ?></a>
+                <?php endif; ?>
+            <?php endfor; ?>
+            <?php if ($page < $total_pages): ?>
+                <a href="?page=<?= $page + 1 ?>">Next ›</a>
+                <a href="?page=<?= $total_pages ?>">Last »»</a>
+            <?php endif; ?>
+        </div>
+    <?php endif; ?>
 </div>
 
 <!-- Modal Edit User -->
@@ -201,17 +223,14 @@
         <form method="post" id="editUserForm">
             <input type="hidden" name="action" value="edit_user">
             <input type="hidden" name="user_id" id="editUserId">
-
             <div class="form-group">
                 <label>Username</label>
                 <input type="text" name="username" id="editUsername" required>
             </div>
-
             <div class="form-group">
                 <label>Password (kosongkan jika tidak diubah)</label>
                 <input type="text" name="password" id="editPassword" placeholder="Isi jika ingin ubah password">
             </div>
-
             <div class="form-group">
                 <label>Role</label>
                 <select name="role" id="editRole" required onchange="toggleEditPermissions()">
@@ -219,30 +238,26 @@
                     <option value="admin">Admin</option>
                 </select>
             </div>
-
             <div class="form-group">
                 <label>Bagian/Divisi</label>
                 <input type="text" name="bagian" id="editBagian">
             </div>
-
-            <!-- Edit Permissions -->
             <div id="editPermissionsSection" class="permission-section">
                 <h4>🔐 Pilih Akses Page:</h4>
                 <div class="permission-grid">
-                    <?php foreach ($available_pages as $slug => $page): ?>
+                    <?php foreach ($available_pages as $slug => $page_info): ?>
                         <label class="permission-item" onclick="togglePermissionItem(this)">
                             <div class="permission-checkbox">
                                 <input type="checkbox" name="permissions[]" value="<?= h($slug) ?>" class="edit-permission-checkbox" onclick="event.stopPropagation()">
                                 <div class="permission-info">
-                                    <div class="permission-title"><?= $page['icon'] ?> <?= h($page['name']) ?></div>
-                                    <div class="permission-desc"><?= h($page['description']) ?></div>
+                                    <div class="permission-title"><?= $page_info['icon'] ?> <?= h($page_info['name']) ?></div>
+                                    <div class="permission-desc"><?= h($page_info['description']) ?></div>
                                 </div>
                             </div>
                         </label>
                     <?php endforeach; ?>
                 </div>
             </div>
-
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" onclick="closeEditModal()">Batal</button>
                 <button type="submit" class="btn btn-primary">Simpan</button>
@@ -252,68 +267,45 @@
 </div>
 
 <script>
-// Toggle add user permissions visibility based on role
-document.getElementById('addUserRole').addEventListener('change', function() {
-    const section = document.getElementById('addPermissionsSection');
-    section.style.display = this.value === 'user' ? 'block' : 'none';
+document.getElementById('addUserRole').addEventListener('change', function () {
+    document.getElementById('addPermissionsSection').style.display = this.value === 'user' ? 'block' : 'none';
 });
 
-// Toggle permission item selection
 function togglePermissionItem(label) {
-    const checkbox = label.querySelector('input[type="checkbox"]');
-    checkbox.checked = !checkbox.checked;
-    
-    if (checkbox.checked) {
-        label.classList.add('selected');
-    } else {
-        label.classList.remove('selected');
-    }
+    const cb = label.querySelector('input[type="checkbox"]');
+    cb.checked = !cb.checked;
+    label.classList.toggle('selected', cb.checked);
 }
 
-// Edit user function
 function editUser(userData) {
-    document.getElementById('editUserId').value = userData.id;
+    document.getElementById('editUserId').value  = userData.id;
     document.getElementById('editUsername').value = userData.username;
     document.getElementById('editPassword').value = '';
     document.getElementById('editPassword').placeholder = 'Password saat ini: ' + (userData.plain_password || '******');
-    document.getElementById('editRole').value = userData.role;
-    document.getElementById('editBagian').value = userData.bagian || '';
-    
-    // Clear all checkboxes first
+    document.getElementById('editRole').value    = userData.role;
+    document.getElementById('editBagian').value  = userData.bagian || '';
     document.querySelectorAll('.edit-permission-checkbox').forEach(cb => {
         cb.checked = false;
         cb.closest('.permission-item').classList.remove('selected');
     });
-    
-    // Check user's permissions
     if (userData.permissions && Array.isArray(userData.permissions)) {
         userData.permissions.forEach(perm => {
-            const checkbox = document.querySelector('.edit-permission-checkbox[value="' + perm + '"]');
-            if (checkbox) {
-                checkbox.checked = true;
-                checkbox.closest('.permission-item').classList.add('selected');
-            }
+            const cb = document.querySelector('.edit-permission-checkbox[value="' + perm + '"]');
+            if (cb) { cb.checked = true; cb.closest('.permission-item').classList.add('selected'); }
         });
     }
-    
     toggleEditPermissions();
     document.getElementById('editModal').classList.add('show');
 }
 
-// Toggle edit permissions visibility
 function toggleEditPermissions() {
-    const role = document.getElementById('editRole').value;
-    const section = document.getElementById('editPermissionsSection');
-    section.style.display = role === 'user' ? 'block' : 'none';
+    document.getElementById('editPermissionsSection').style.display =
+        document.getElementById('editRole').value === 'user' ? 'block' : 'none';
 }
 
-function closeEditModal() {
-    document.getElementById('editModal').classList.remove('show');
-}
+function closeEditModal() { document.getElementById('editModal').classList.remove('show'); }
 
-document.addEventListener('click', function(e) {
-    if (e.target && e.target.classList && e.target.classList.contains('modal')) {
-        e.target.classList.remove('show');
-    }
+document.addEventListener('click', function (e) {
+    if (e.target && e.target.classList.contains('modal')) e.target.classList.remove('show');
 });
 </script>

@@ -20,7 +20,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
 
     // ── ZOOM UNIT ─────────────────────────────────────────────
-
     if ($action === 'add_unit') {
         $name = trim($_POST['unit_name'] ?? '');
         if ($name === '') {
@@ -74,7 +73,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // ── ZOOM LINK ─────────────────────────────────────────────
-
     if ($action === 'add_link') {
         $email = trim($_POST['link_email'] ?? '');
         if ($email === '') {
@@ -134,14 +132,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Load data
-$unit_list = $pdo->query(
-    "SELECT * FROM zoom_units ORDER BY sort_order ASC, id ASC"
-)->fetchAll();
+// ── PAGINATION — UNITS ──────────────────────────────────────────
+$per_page      = 10;
+$page_unit     = max(1, (int)($_GET['page_unit'] ?? 1));
+$offset_unit   = ($page_unit - 1) * $per_page;
 
-$link_list = $pdo->query(
-    "SELECT * FROM zoom_links ORDER BY sort_order ASC, id ASC"
-)->fetchAll();
+$total_units   = (int)$pdo->query("SELECT COUNT(*) FROM zoom_units")->fetchColumn();
+$pages_unit    = (int)ceil($total_units / $per_page);
+
+$stmt = $pdo->prepare("SELECT * FROM zoom_units ORDER BY sort_order ASC, id ASC LIMIT :lim OFFSET :off");
+$stmt->bindValue(':lim', $per_page,    PDO::PARAM_INT);
+$stmt->bindValue(':off', $offset_unit, PDO::PARAM_INT);
+$stmt->execute();
+$unit_list = $stmt->fetchAll();
+
+// ── PAGINATION — LINKS ──────────────────────────────────────────
+$page_link     = max(1, (int)($_GET['page_link'] ?? 1));
+$offset_link   = ($page_link - 1) * $per_page;
+
+$total_links   = (int)$pdo->query("SELECT COUNT(*) FROM zoom_links")->fetchColumn();
+$pages_link    = (int)ceil($total_links / $per_page);
+
+$stmt = $pdo->prepare("SELECT * FROM zoom_links ORDER BY sort_order ASC, id ASC LIMIT :lim OFFSET :off");
+$stmt->bindValue(':lim', $per_page,    PDO::PARAM_INT);
+$stmt->bindValue(':off', $offset_link, PDO::PARAM_INT);
+$stmt->execute();
+$link_list = $stmt->fetchAll();
 
 $page_title   = 'Master Zoom';
 $active_menu  = 'master-zoom';

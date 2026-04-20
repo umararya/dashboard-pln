@@ -24,10 +24,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // ADD USER
     if ($action === 'add_user') {
-        $username = clean_input($_POST['username'] ?? '');
-        $password = $_POST['password'] ?? '';
-        $role = $_POST['role'] ?? 'user';
-        $bagian = clean_input($_POST['bagian'] ?? '');
+        $username    = clean_input($_POST['username'] ?? '');
+        $password    = $_POST['password'] ?? '';
+        $role        = $_POST['role'] ?? 'user';
+        $bagian      = clean_input($_POST['bagian'] ?? '');
         $permissions = $_POST['permissions'] ?? [];
 
         if ($username === '' || $password === '') {
@@ -41,14 +41,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 try {
                     $stmt = $pdo->prepare("INSERT INTO users (username, plain_password, role, bagian, is_active) VALUES (:u, :p, :r, :b, 1)");
                     $stmt->execute([':u' => $username, ':p' => $password, ':r' => $role, ':b' => $bagian]);
-                    
                     $new_user_id = $pdo->lastInsertId();
-                    
-                    // Save permissions (only for non-admin users)
                     if ($role === 'user' && !empty($permissions)) {
                         sync_user_permissions($new_user_id, $permissions);
                     }
-                    
                     $success = "User '$username' berhasil ditambahkan.";
                 } catch (PDOException $e) {
                     $errors[] = 'Error: ' . $e->getMessage();
@@ -59,9 +55,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // TOGGLE ACTIVE
     if ($action === 'toggle_active') {
-        $id = (int)($_POST['user_id'] ?? 0);
+        $id             = (int)($_POST['user_id'] ?? 0);
         $current_status = (int)($_POST['current_status'] ?? 0);
-
         if ($id > 0) {
             $new_status = $current_status ? 0 : 1;
             $stmt = $pdo->prepare("UPDATE users SET is_active = :status WHERE id = :id");
@@ -73,7 +68,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // DELETE USER
     if ($action === 'delete_user') {
         $id = (int)($_POST['user_id'] ?? 0);
-
         if ($id === (int)($_SESSION['user_id'] ?? 0)) {
             $errors[] = 'Tidak dapat menghapus akun sendiri.';
         } elseif ($id > 0) {
@@ -85,11 +79,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // EDIT USER
     if ($action === 'edit_user') {
-        $id = (int)($_POST['user_id'] ?? 0);
-        $username = clean_input($_POST['username'] ?? '');
-        $role = $_POST['role'] ?? 'user';
-        $bagian = clean_input($_POST['bagian'] ?? '');
-        $password = $_POST['password'] ?? '';
+        $id          = (int)($_POST['user_id'] ?? 0);
+        $username    = clean_input($_POST['username'] ?? '');
+        $role        = $_POST['role'] ?? 'user';
+        $bagian      = clean_input($_POST['bagian'] ?? '');
+        $password    = $_POST['password'] ?? '';
         $permissions = $_POST['permissions'] ?? [];
 
         if ($id > 0 && $username !== '') {
@@ -106,15 +100,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $stmt = $pdo->prepare("UPDATE users SET username = :u, role = :r, bagian = :b WHERE id = :id");
                         $stmt->execute([':u' => $username, ':r' => $role, ':b' => $bagian, ':id' => $id]);
                     }
-                    
-                    // Sync permissions (only for non-admin users)
-                    if ($role === 'user') {
-                        sync_user_permissions($id, $permissions);
-                    } else {
-                        // If changed to admin, remove all permissions
-                        sync_user_permissions($id, []);
-                    }
-                    
+                    sync_user_permissions($id, $role === 'user' ? $permissions : []);
                     $success = 'User berhasil diupdate.';
                 } catch (PDOException $e) {
                     $errors[] = 'Error update user: ' . $e->getMessage();
@@ -124,8 +110,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Load users with permissions
-$users = $pdo->query("SELECT * FROM users ORDER BY id ASC")->fetchAll();
+// ── PAGINATION ──────────────────────────────────────────────────
+$per_page    = 10;
+$page        = max(1, (int)($_GET['page'] ?? 1));
+$offset      = ($page - 1) * $per_page;
+
+$total_count = (int)$pdo->query("SELECT COUNT(*) FROM users")->fetchColumn();
+$total_pages = (int)ceil($total_count / $per_page);
+
+$users_stmt  = $pdo->prepare("SELECT * FROM users ORDER BY id ASC LIMIT :lim OFFSET :off");
+$users_stmt->bindValue(':lim', $per_page, PDO::PARAM_INT);
+$users_stmt->bindValue(':off', $offset,   PDO::PARAM_INT);
+$users_stmt->execute();
+$users = $users_stmt->fetchAll();
 
 // Load permissions for each user
 foreach ($users as &$user) {
@@ -133,11 +130,9 @@ foreach ($users as &$user) {
 }
 unset($user);
 
-// Get available pages
 $available_pages = get_available_pages();
 
-// Variables for layout
-$page_title = "Master User";
+$page_title  = "Master User";
 $active_menu = "master-user";
 $content_file = __DIR__ . '/master-user.content.php';
 

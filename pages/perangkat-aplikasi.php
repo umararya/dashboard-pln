@@ -18,7 +18,6 @@ require_permission('perangkat-aplikasi');
 $pdo     = db();
 $success = '';
 
-// Handle success messages
 if (isset($_GET['added']))   $success = 'Data perangkat aplikasi berhasil ditambahkan.';
 if (isset($_GET['updated'])) $success = 'Data perangkat aplikasi berhasil diupdate.';
 if (isset($_GET['deleted'])) $success = 'Data perangkat aplikasi berhasil dihapus.';
@@ -39,24 +38,48 @@ if (
     }
 }
 
-// ── FILTER ───────────────────────────────────────────────────────
+// ── FILTER (dropdown) ─────────────────────────────────────────────
 $filter_jenis = trim($_GET['filter_jenis'] ?? '');
 $filter_msb   = trim($_GET['filter_msb']   ?? '');
-$is_filtered  = ($filter_jenis !== '' || $filter_msb !== '');
 
-$where  = [];
-$params = [];
+// ── SERVER-SIDE SEARCH (text) ─────────────────────────────────────
+$search = trim($_GET['q'] ?? '');
+
+$is_filtered  = ($filter_jenis !== '' || $filter_msb !== '');
+$is_searching = ($search !== '');
+
+$where_parts = [];
+$bind_params = [];
 
 if ($filter_jenis !== '') {
-    $where[]           = "pa.jenis_perangkat = :jenis";
-    $params[':jenis']  = $filter_jenis;
+    $where_parts[]           = "pa.jenis_perangkat = :jenis";
+    $bind_params[':jenis']   = $filter_jenis;
 }
 if ($filter_msb !== '') {
-    $where[]          = "pa.msb_sub_bidang = :msb";
-    $params[':msb']   = $filter_msb;
+    $where_parts[]          = "pa.msb_sub_bidang = :msb";
+    $bind_params[':msb']    = $filter_msb;
+}
+if ($search !== '') {
+    $like = '%' . $search . '%';
+    $where_parts[] = "(
+        pa.jenis_perangkat  LIKE :q1 OR
+        pa.url              LIKE :q2 OR
+        pa.ip               LIKE :q3 OR
+        pa.brand            LIKE :q4 OR
+        pa.type             LIKE :q5 OR
+        pa.server           LIKE :q6 OR
+        pa.os               LIKE :q7 OR
+        pa.lokasi           LIKE :q8 OR
+        pa.bidang           LIKE :q9 OR
+        pa.msb_sub_bidang   LIKE :q10 OR
+        pa.pemilik_aset     LIKE :q11
+    )";
+    for ($i = 1; $i <= 11; $i++) {
+        $bind_params[":q$i"] = $like;
+    }
 }
 
-$whereSql = $where ? 'WHERE ' . implode(' AND ', $where) : '';
+$where_sql = $where_parts ? 'WHERE ' . implode(' AND ', $where_parts) : '';
 
 // ── Dropdown options untuk filter ────────────────────────────────
 $jenis_options = $pdo->query(
@@ -76,31 +99,26 @@ $page      = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
 $per_page  = 15;
 $offset    = ($page - 1) * $per_page;
 
-$countStmt = $pdo->prepare("SELECT COUNT(*) FROM perangkat_aplikasi pa $whereSql");
-$countStmt->execute($params);
-$total_count = (int)$countStmt->fetchColumn();
+$count_stmt = $pdo->prepare("SELECT COUNT(*) FROM perangkat_aplikasi pa $where_sql");
+$count_stmt->execute($bind_params);
+$total_count = (int)$count_stmt->fetchColumn();
 $total_pages = (int)ceil($total_count / $per_page);
 
-$params[':lim'] = $per_page;
-$params[':off'] = $offset;
-
-$stmt = $pdo->prepare(
+$data_stmt = $pdo->prepare(
     "SELECT pa.*, u.username AS created_by_name
      FROM perangkat_aplikasi pa
      LEFT JOIN users u ON pa.created_by = u.id
-     $whereSql
+     $where_sql
      ORDER BY pa.created_at DESC
      LIMIT :lim OFFSET :off"
 );
-$stmt->bindValue(':lim', $per_page, PDO::PARAM_INT);
-$stmt->bindValue(':off', $offset,   PDO::PARAM_INT);
-foreach ($params as $key => $val) {
-    if ($key !== ':lim' && $key !== ':off') {
-        $stmt->bindValue($key, $val);
-    }
+foreach ($bind_params as $k => $v) {
+    $data_stmt->bindValue($k, $v);
 }
-$stmt->execute();
-$rows = $stmt->fetchAll();
+$data_stmt->bindValue(':lim', $per_page, PDO::PARAM_INT);
+$data_stmt->bindValue(':off', $offset,   PDO::PARAM_INT);
+$data_stmt->execute();
+$rows = $data_stmt->fetchAll();
 
 $page_title   = "Perangkat Aplikasi";
 $active_menu  = "perangkat-aplikasi";
